@@ -1,0 +1,19 @@
+[toolchain]
+package_manager = "yarn"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+pumpfun_oath_contract = "Ad4ac7oFBgHA9NZ7jkvhUurj5iytxHighGtTRokbrLbQ"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "https://solana-devnet.nodit.io/g_geDW2RLecIkMAlMGV6TL6veVho5cNS"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
