@@ -1,0 +1,36 @@
+# Solana Vault 事件监听器配置文件 - WebSocket 模式示例
+
+# Solana RPC 配置
+solana:
+  # 当前激活的网络: mainnet | devnet | testnet
+  active_network: devnet
+  
+  # 多个网络的 RPC 端点配置
+  networks:
+    # 开发网配置
+    devnet:
+      rpc_url: "https://api.zan.top/node/v1/solana/devnet/55c625d41c924f97971cdd05bb533048"
+      wss_url: "wss://api.zan.top/node/ws/v1/solana/devnet/55c625d41c924f97971cdd05bb533048"
+    
+    # 主网配置
+    mainnet:
+      rpc_url: "https://api.zan.top/node/v1/solana/mainnet/YOUR_MAINNET_API_KEY"
+      wss_url: "wss://api.zan.top/node/ws/v1/solana/mainnet/YOUR_MAINNET_API_KEY"
+    
+    # 测试网配置
+    testnet:
+      rpc_url: "https://api.testnet.solana.com"
+      wss_url: "wss://api.testnet.solana.com"
+
+# Vault 合约配置
+vault:
+  # Vault 合约程序 ID
+  program_id: "HZWKVfammvEHaNfPnYTppEgXYppZWfqPiGgxwgAjEdVv"
+
+# 监听器配置
+listener:
+  # 监听模式: "polling" (轮询) 或 "websocket" (实时监听)
+  mode: "websocket"
+  
+  # 轮询间隔（秒）- 仅在 polling 模式下生效
+  poll_interval_secs: 5

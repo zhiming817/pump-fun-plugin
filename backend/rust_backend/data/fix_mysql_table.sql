@@ -1,0 +1,21 @@
+-- 删除旧的 create_events 表（如果存在）
+DROP TABLE IF EXISTS create_events;
+
+-- SeaORM 会自动创建新表，字段定义如下（供参考）：
+-- CREATE TABLE create_events (
+--     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--     mint VARCHAR(255) NOT NULL UNIQUE,
+--     name VARCHAR(255) NOT NULL,
+--     symbol VARCHAR(100) NOT NULL,
+--     uri TEXT NOT NULL,
+--     bonding_curve VARCHAR(255) NOT NULL,
+--     user_account VARCHAR(255) NOT NULL,
+--     creator VARCHAR(255) NOT NULL,
+--     timestamp BIGINT NOT NULL,
+--     virtual_token_reserves BIGINT NOT NULL,
+--     virtual_sol_reserves BIGINT NOT NULL,
+--     real_token_reserves BIGINT NOT NULL,
+--     token_total_supply BIGINT NOT NULL,
+--     signature VARCHAR(255),
+--     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+-- );

@@ -1,0 +1,189 @@
+use anyhow::Result;
+use borsh::{BorshDeserialize};
+use base64::{Engine as _, engine::general_purpose};
+use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_commitment_config::CommitmentConfig;
+use solana_sdk::pubkey::Pubkey;
+use solana_sdk::signature::Signature;
+use solana_transaction_status::UiTransactionEncoding;
+use serde_json;
+use std::str::FromStr;
+
+// 定义 VaultCreatedEvent 结构体（与合约中的定义保持一致）
+#[derive(Debug, BorshDeserialize)]
+pub struct VaultCreatedEvent {
+    pub id: u64,
+    pub creator: Pubkey,
+    pub name: String,
+    pub symbol: String,
+    pub target_apy: u64,
+    pub initial_deposit: u64,
+    pub strategy_type: String,
+    pub risk_level: u8,
+    pub created_at: i64,
+}
+
+// Vault 合约程序 ID
+const VAULT_PROGRAM_ID: &str = "HZWKVfammvEHaNfPnYTppEgXYppZWfqPiGgxwgAjEdVv";
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    println!("🚀 启动 Vault 合约事件监听器...");
+    
+    // 创建 RPC 连接
+    let connection = RpcClient::new_with_commitment(
+        "https://solana-devnet.nodit.io/g_geDW2RLecIkMAlMGV6TL6veVho5cNS".to_string(),
+        CommitmentConfig::confirmed(),
+    );
+
+    // 解析程序 ID
+    let program_id = Pubkey::from_str(VAULT_PROGRAM_ID)?;
+    println!("📍 监听程序 ID: {}", program_id);
+    println!("🔗 RPC 端点: https://solana-devnet.nodit.io/...");
+    println!("\n⏳ 使用轮询方式监听 VaultCreatedEvent 事件...\n");
+
+    let mut last_signature: Option<Signature> = None;
+    
+    loop {
+        // 获取程序的最近交易签名
+        let signatures = connection
+            .get_signatures_for_address(&program_id)
+            .await?;
+
+        for sig_info in signatures.iter() {
+            let signature = sig_info.signature.parse::<Signature>()?;
+            
+            // 跳过已经处理过的交易
+            if let Some(last_sig) = last_signature {
+                if signature == last_sig {
+                    break;
+                }
+            }
+            
+            println!("📝 发现新交易: {}", signature);
+            
+            // 获取交易详情
+            match connection.get_transaction(&signature, UiTransactionEncoding::Json).await {
+                Ok(transaction) => {
+                    // 检查交易日志中是否包含事件
+                    if let Some(meta) = transaction.transaction.meta {
+                        // 将 meta 转换为 JSON 以便访问 log_messages
+                        let meta_json = serde_json::to_value(&meta).unwrap_or_default();
+                        if let Some(logs) = meta_json.get("logMessages").and_then(|v| v.as_array()) {
+                            let mut found_vault_creation = false;
+                            
+                            for log_val in logs {
+                                if let Some(log_line) = log_val.as_str() {
+                                    // 检查是否是 CreateVault 指令
+                                    if log_line.contains("Instruction: CreateVault") {
+                                        found_vault_creation = true;
+                                        println!("  🎯 检测到 CreateVault 指令!");
+                                    }
+                                    
+                                    // 尝试解析程序数据
+                                    if log_line.contains("Program data:") {
+                                        println!("  📊 发现程序数据日志");
+                                        
+                                        // 解析事件数据
+                                        if let Some(event) = parse_event_from_log(log_line) {
+                                            print_vault_created_event(&event);
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // 如果发现了 Vault 创建，打印完整日志
+                            if found_vault_creation {
+                                println!("\n  📋 完整交易日志:");
+                                for log_val in logs {
+                                    if let Some(log) = log_val.as_str() {
+                                        println!("    {}", log);
+                                    }
+                                }
+                                println!();
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("  ❌ 获取交易失败: {}", e);
+                }
+            }
+        }
+        
+        // 更新最后处理的签名
+        if let Some(first_sig) = signatures.first() {
+            last_signature = Some(first_sig.signature.parse()?);
+        }
+        
+        // 等待 5 秒后再次轮询
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+    }
+}
+
+// 解析日志中的事件数据
+fn parse_event_from_log(log_line: &str) -> Option<VaultCreatedEvent> {
+    // Anchor 事件格式: "Program data: <base64_encoded_data>"
+    // 事件数据格式: 8字节事件鉴别器 + 事件数据
+    
+    if !log_line.contains("Program data:") {
+        return None;
+    }
+    
+    // 提取 base64 数据
+    let parts: Vec<&str> = log_line.split("Program data: ").collect();
+    if parts.len() < 2 {
+        return None;
+    }
+    
+    let base64_data = parts[1].trim();
+    
+    // 解码 base64 (使用新的 API)
+    match general_purpose::STANDARD.decode(base64_data) {
+        Ok(decoded_data) => {
+            // Anchor 事件数据格式：前8字节是事件鉴别器，后面是实际数据
+            if decoded_data.len() <= 8 {
+                eprintln!("  ⚠️  解码数据太短: {} bytes", decoded_data.len());
+                return None;
+            }
+            
+            // 跳过前8字节的事件鉴别器
+            let event_data = &decoded_data[8..];
+            
+            // 使用 Borsh 反序列化
+            match VaultCreatedEvent::try_from_slice(event_data) {
+                Ok(event) => {
+                    println!("  ✅ 成功解析事件数据!");
+                    Some(event)
+                }
+                Err(e) => {
+                    eprintln!("  ❌ Borsh 反序列化失败: {}", e);
+                    eprintln!("  数据长度: {} bytes", event_data.len());
+                    eprintln!("  数据十六进制: {}", hex::encode(event_data));
+                    None
+                }
+            }
+        }
+        Err(e) => {
+            eprintln!("  ❌ Base64 解码失败: {}", e);
+            None
+        }
+    }
+}
+
+// 打印 VaultCreatedEvent 信息
+fn print_vault_created_event(event: &VaultCreatedEvent) {
+    println!("\n{}", "=".repeat(60));
+    println!("🏦 Vault 创建事件详情");
+    println!("{}", "=".repeat(60));
+    println!("📊 Vault ID: {}", event.id);
+    println!("👤 创建者: {}", event.creator);
+    println!("📝 名称: {}", event.name);
+    println!("🔖 符号: {}", event.symbol);
+    println!("📈 目标 APY: {}%", event.target_apy as f64 / 100.0);
+    println!("💰 初始存款: {} SOL", event.initial_deposit as f64 / 1_000_000_000.0);
+    println!("🎯 策略类型: {}", event.strategy_type);
+    println!("⚠️  风险等级: {}", event.risk_level);
+    println!("⏰ 创建时间: {}", event.created_at);
+    println!("{}\n", "=".repeat(60));
+}
