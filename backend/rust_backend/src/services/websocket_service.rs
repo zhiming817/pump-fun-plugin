@@ -4,6 +4,7 @@ use solana_client::rpc_config::{RpcTransactionLogsConfig, RpcTransactionLogsFilt
 use solana_commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
 
+use crate::config::EventParseMode;
 use crate::services::{EventParserService, DatabaseService};
 use crate::utils::ViewFormatter;
 
@@ -13,6 +14,7 @@ pub struct WebSocketService {
     program_id: Pubkey,
     event_parser: EventParserService,
     db_service: Option<DatabaseService>,
+    event_parse_mode: EventParseMode,
 }
 
 impl WebSocketService {
@@ -22,12 +24,19 @@ impl WebSocketService {
     /// * `wss_url` - WebSocket 端点 URL (wss://)
     /// * `program_id` - 要监听的程序 ID
     /// * `db_service` - 数据库服务（可选）
-    pub fn new(wss_url: &str, program_id: Pubkey, db_service: Option<DatabaseService>) -> Self {
+    /// * `event_parse_mode` - 事件解析模式
+    pub fn new(
+        wss_url: &str,
+        program_id: Pubkey,
+        db_service: Option<DatabaseService>,
+        event_parse_mode: EventParseMode,
+    ) -> Self {
         Self {
             wss_url: wss_url.to_string(),
             program_id,
             event_parser: EventParserService::new(),
             db_service,
+            event_parse_mode,
         }
     }
 
@@ -83,68 +92,72 @@ impl WebSocketService {
             if is_pumpfun_program {
                 for log in logs {
                     if log.contains("Program data:") {
-                        // 先尝试解析 CreateEvent
-                        if let Some(event) = self.event_parser.parse_create_event_from_log(log) {
-                            println!("============================================================");
-                            println!("🪙 CreateEvent 详情");
-                            println!("============================================================");
-                            println!("名称: {}", event.name);
-                            println!("符号: {}", event.symbol);
-                            println!("URI: {}", event.uri);
-                            println!("Mint: {}", event.mint);
-                            println!("BondingCurve: {}", event.bonding_curve);
-                            println!("User: {}", event.user);
-                            println!("Creator: {}", event.creator);
-                            println!("时间戳: {}", event.timestamp);
-                            println!("虚拟Token储备: {}", event.virtual_token_reserves);
-                            println!("虚拟Sol储备: {}", event.virtual_sol_reserves);
-                            println!("真实Token储备: {}", event.real_token_reserves);
-                            println!("Token总供应: {}", event.token_total_supply);
-                            println!("============================================================\n");
+                        // 根据配置决定是否解析 CreateEvent
+                        if self.event_parse_mode.should_parse_create() {
+                            if let Some(event) = self.event_parser.parse_create_event_from_log(log) {
+                                println!("============================================================");
+                                println!("🪙 CreateEvent 详情");
+                                println!("============================================================");
+                                println!("名称: {}", event.name);
+                                println!("符号: {}", event.symbol);
+                                println!("URI: {}", event.uri);
+                                println!("Mint: {}", event.mint);
+                                println!("BondingCurve: {}", event.bonding_curve);
+                                println!("User: {}", event.user);
+                                println!("Creator: {}", event.creator);
+                                println!("时间戳: {}", event.timestamp);
+                                println!("虚拟Token储备: {}", event.virtual_token_reserves);
+                                println!("虚拟Sol储备: {}", event.virtual_sol_reserves);
+                                println!("真实Token储备: {}", event.real_token_reserves);
+                                println!("Token总供应: {}", event.token_total_supply);
+                                println!("============================================================\n");
 
-                            // 保存到数据库
-                            if let Some(ref db) = self.db_service {
-                                let signature = log_result.value.signature.as_str();
-                                match db.save_create_event(&event, Some(signature)).await {
-                                    Ok(_) => {
-                                        println!("💾 ✅ CreateEvent 已成功保存到数据库");
-                                    }
-                                    Err(e) => {
-                                        eprintln!("❌ 保存 CreateEvent 失败: {}", e);
+                                // 保存到数据库
+                                if let Some(ref db) = self.db_service {
+                                    let signature = log_result.value.signature.as_str();
+                                    match db.save_create_event(&event, Some(signature)).await {
+                                        Ok(_) => {
+                                            println!("💾 ✅ CreateEvent 已成功保存到数据库");
+                                        }
+                                        Err(e) => {
+                                            eprintln!("❌ 保存 CreateEvent 失败: {}", e);
+                                        }
                                     }
                                 }
+                                continue; // CreateEvent 解析成功，跳过 TradeEvent 尝试
                             }
-                            continue; // CreateEvent 解析成功，跳过 TradeEvent 尝试
                         }
 
-                        // 再尝试解析 TradeEvent
-                        if let Some(event) = self.event_parser.parse_trade_event_from_log(log) {
-                            println!("============================================================");
-                            println!("💱 TradeEvent 详情");
-                            println!("============================================================");
-                            println!("交易类型: {}", if event.is_buy { "买入 🟢" } else { "卖出 🔴" });
-                            println!("Mint: {}", event.mint);
-                            println!("SOL数量: {}", event.sol_amount);
-                            println!("Token数量: {}", event.token_amount);
-                            println!("用户: {}", event.user);
-                            println!("时间戳: {}", event.timestamp);
-                            println!("虚拟SOL储备: {}", event.virtual_sol_reserves);
-                            println!("虚拟Token储备: {}", event.virtual_token_reserves);
-                            println!("真实SOL储备: {}", event.real_sol_reserves);
-                            println!("真实Token储备: {}", event.real_token_reserves);
-                            println!("手续费: {}", event.fee);
-                            println!("创建者: {}", event.creator);
-                            println!("============================================================\n");
+                        // 根据配置决定是否解析 TradeEvent
+                        if self.event_parse_mode.should_parse_trade() {
+                            if let Some(event) = self.event_parser.parse_trade_event_from_log(log) {
+                                println!("============================================================");
+                                println!("💱 TradeEvent 详情");
+                                println!("============================================================");
+                                println!("交易类型: {}", if event.is_buy { "买入 🟢" } else { "卖出 🔴" });
+                                println!("Mint: {}", event.mint);
+                                println!("SOL数量: {}", event.sol_amount);
+                                println!("Token数量: {}", event.token_amount);
+                                println!("用户: {}", event.user);
+                                println!("时间戳: {}", event.timestamp);
+                                println!("虚拟SOL储备: {}", event.virtual_sol_reserves);
+                                println!("虚拟Token储备: {}", event.virtual_token_reserves);
+                                println!("真实SOL储备: {}", event.real_sol_reserves);
+                                println!("真实Token储备: {}", event.real_token_reserves);
+                                println!("手续费: {}", event.fee);
+                                println!("创建者: {}", event.creator);
+                                println!("============================================================\n");
 
-                            // 保存到数据库
-                            if let Some(ref db) = self.db_service {
-                                let signature = log_result.value.signature.as_str();
-                                match db.save_trade_event(&event, Some(signature)).await {
-                                    Ok(_) => {
-                                        println!("💾 ✅ TradeEvent 已成功保存到数据库");
-                                    }
-                                    Err(e) => {
-                                        eprintln!("❌ 保存 TradeEvent 失败: {}", e);
+                                // 保存到数据库
+                                if let Some(ref db) = self.db_service {
+                                    let signature = log_result.value.signature.as_str();
+                                    match db.save_trade_event(&event, Some(signature)).await {
+                                        Ok(_) => {
+                                            println!("💾 ✅ TradeEvent 已成功保存到数据库");
+                                        }
+                                        Err(e) => {
+                                            eprintln!("❌ 保存 TradeEvent 失败: {}", e);
+                                        }
                                     }
                                 }
                             }

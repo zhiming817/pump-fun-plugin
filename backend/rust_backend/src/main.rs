@@ -17,6 +17,7 @@ async fn main() {
     // 显示当前激活的网络
     println!("🌐 激活网络: {:?}", config.active_network);
     println!("🔗 RPC 端点: {}", config.get_rpc_url());
+    println!("🎯 事件解析模式: {:?}", config.event_parse_mode);
     println!();
 
     // 根据配置选择监听模式

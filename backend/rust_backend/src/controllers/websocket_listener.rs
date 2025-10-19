@@ -38,7 +38,8 @@ impl WebSocketListenerController {
             }
         };
         
-        let websocket_service = WebSocketService::new(&wss_url, program_id, db_service);
+        let event_parse_mode = config.event_parse_mode;
+        let websocket_service = WebSocketService::new(&wss_url, program_id, db_service, event_parse_mode);
 
         Ok(Self { websocket_service })
     }

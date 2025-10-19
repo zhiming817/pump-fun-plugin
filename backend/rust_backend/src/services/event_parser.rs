@@ -66,7 +66,7 @@ impl EventParserService {
                 Some(event)
             }
             Err(e) => {
-                eprintln!("  ❌ Borsh 反序列化失败: {}", e);
+                eprintln!("  ❌ VaultCreatedEvent Borsh 反序列化失败: {}", e);
                 eprintln!("  数据长度: {} bytes", data.len());
                 None
             }
@@ -101,7 +101,7 @@ impl EventParserService {
                         Some(event)
                     }
                     Err(e) => {
-                        eprintln!("  ❌ Borsh 反序列化失败: {}", e);
+                        eprintln!("  ❌ CreateEvent Borsh 反序列化失败: {}", e);
                         eprintln!("  数据长度: {} bytes", event_data.len());
                         None
                     }

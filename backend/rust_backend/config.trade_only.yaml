@@ -1,0 +1,38 @@
+# Solana Vault 事件监听器配置文件 - 仅解析 TradeEvent
+
+# Solana RPC 配置
+solana:
+  active_network: mainnet
+  
+  networks:
+    devnet:
+      rpc_url: "https://api.zan.top/node/v1/solana/devnet/55c625d41c924f97971cdd05bb533048"
+    
+    mainnet:
+      rpc_url: "https://api.zan.top/node/v1/solana/mainnet/55c625d41c924f97971cdd05bb533048"
+    
+    testnet:
+      rpc_url: "https://api.testnet.solana.com"
+
+# Vault 合约配置
+vault:
+  program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+
+# 监听器配置
+listener:
+  mode: "websocket"
+  poll_interval_secs: 5
+  # 仅解析 TradeEvent
+  event_parse: "trade"
+
+# 数据库配置
+database:
+  type: "mysql"
+  sqlite_path: "data/events.db"
+  mysql_host: "127.0.0.1"
+  mysql_port: 3306
+  mysql_user: "root"
+  mysql_password: "root"
+  mysql_database: "pumpfun-mainnet"
+  max_connections: 5
+  min_connections: 1

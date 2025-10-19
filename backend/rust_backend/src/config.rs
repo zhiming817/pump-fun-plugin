@@ -47,6 +47,43 @@ impl ListenerMode {
     }
 }
 
+/// 事件解析模式
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum EventParseMode {
+    /// 仅解析 CreateEvent
+    Create,
+    /// 仅解析 TradeEvent
+    Trade,
+    /// 解析所有事件
+    Both,
+    /// 不解析任何事件
+    None,
+}
+
+impl EventParseMode {
+    /// 从字符串解析事件解析模式
+    pub fn from_str(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "create" => Self::Create,
+            "trade" => Self::Trade,
+            "both" | "all" => Self::Both,
+            "none" => Self::None,
+            _ => Self::Both, // 默认解析所有
+        }
+    }
+
+    /// 判断是否需要解析 CreateEvent
+    pub fn should_parse_create(&self) -> bool {
+        matches!(self, Self::Create | Self::Both)
+    }
+
+    /// 判断是否需要解析 TradeEvent
+    pub fn should_parse_trade(&self) -> bool {
+        matches!(self, Self::Trade | Self::Both)
+    }
+}
+
 /// RPC 端点配置
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RpcEndpoint {
@@ -83,6 +120,12 @@ struct VaultConfig {
 struct ListenerConfig {
     mode: ListenerMode,
     poll_interval_secs: u64,
+    #[serde(default = "default_event_parse_mode")]
+    event_parse: EventParseMode,
+}
+
+fn default_event_parse_mode() -> EventParseMode {
+    EventParseMode::Both
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -112,6 +155,8 @@ pub struct AppConfig {
     pub poll_interval_secs: u64,
     /// 监听模式
     pub listener_mode: ListenerMode,
+    /// 事件解析模式
+    pub event_parse_mode: EventParseMode,
     /// 数据库配置
     pub database: DatabaseConfig,
 }
@@ -159,6 +204,7 @@ impl Default for AppConfig {
             program_id: "HZWKVfammvEHaNfPnYTppEgXYppZWfqPiGgxwgAjEdVv".to_string(),
             poll_interval_secs: 5,
             listener_mode: ListenerMode::Polling,
+            event_parse_mode: EventParseMode::Both,
             database: DatabaseConfig {
                 db_type: "sqlite".to_string(),
                 sqlite_path: Some("data/events.db".to_string()),
@@ -195,6 +241,7 @@ impl AppConfig {
             program_id: yaml_config.vault.program_id,
             poll_interval_secs: yaml_config.listener.poll_interval_secs,
             listener_mode: yaml_config.listener.mode,
+            event_parse_mode: yaml_config.listener.event_parse,
             database: yaml_config.database,
         })
     }
@@ -248,6 +295,10 @@ impl AppConfig {
             config.listener_mode = ListenerMode::from_str(&mode);
         }
 
+        if let Ok(event_parse) = std::env::var("EVENT_PARSE") {
+            config.event_parse_mode = EventParseMode::from_str(&event_parse);
+        }
+
         config
     }
 
@@ -294,6 +345,11 @@ impl AppConfig {
         if let Ok(mode) = std::env::var("LISTENER_MODE") {
             println!("🔄 环境变量覆盖监听模式");
             config.listener_mode = ListenerMode::from_str(&mode);
+        }
+
+        if let Ok(event_parse) = std::env::var("EVENT_PARSE") {
+            println!("🔄 环境变量覆盖事件解析模式");
+            config.event_parse_mode = EventParseMode::from_str(&event_parse);
         }
 
         config
