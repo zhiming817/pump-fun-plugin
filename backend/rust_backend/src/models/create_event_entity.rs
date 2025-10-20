@@ -17,6 +17,10 @@ use serde::{Deserialize, Serialize};
 /// - real_token_reserves: BIGINT NOT NULL
 /// - token_total_supply: BIGINT NOT NULL
 /// - signature: VARCHAR(255)
+/// - twitter: VARCHAR(500) (从 URI 元数据中解析)
+/// - telegram: VARCHAR(500) (从 URI 元数据中解析)
+/// - website: VARCHAR(500) (从 URI 元数据中解析)
+/// - image: TEXT (从 URI 元数据中解析)
 /// - created_at: DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "create_events")]
@@ -53,6 +57,19 @@ pub struct Model {
     
     #[sea_orm(column_type = "String(StringLen::N(100))", nullable)]
     pub signature: Option<String>,
+    
+    // 从 URI 元数据中解析的字段
+    #[sea_orm(column_type = "String(StringLen::N(500))", nullable)]
+    pub twitter: Option<String>,
+    
+    #[sea_orm(column_type = "String(StringLen::N(500))", nullable)]
+    pub telegram: Option<String>,
+    
+    #[sea_orm(column_type = "String(StringLen::N(500))", nullable)]
+    pub website: Option<String>,
+    
+    #[sea_orm(column_type = "Text", nullable)]
+    pub image: Option<String>,
     
     pub created_at: DateTime,
 }

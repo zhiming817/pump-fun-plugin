@@ -6,6 +6,7 @@ use crate::config::DatabaseConfig;
 use crate::models::{CreateEvent, TradeEvent};
 use crate::models::create_event_entity::{self, Entity as CreateEventEntity, Model as CreateEventModel};
 use crate::models::trade_event_entity::{self, Entity as TradeEventEntity, Model as TradeEventModel};
+use crate::services::metadata_parser::{MetadataParserService, UriMetadata};
 
 /// 数据库服务 - 使用 SeaORM
 pub struct DatabaseService {
@@ -140,15 +141,56 @@ impl DatabaseService {
             real_token_reserves: Set(event.real_token_reserves as i64),
             token_total_supply: Set(event.token_total_supply as i64),
             signature: Set(signature.map(|s| s.to_string())),
+            twitter: NotSet,
+            telegram: NotSet,
+            website: NotSet,
+            image: NotSet,
             created_at: Set(chrono::Utc::now().naive_utc()),
         };
 
         // 直接插入
-        CreateEventEntity::insert(active_model)
+        let insert_result = CreateEventEntity::insert(active_model)
             .exec(&self.db)
             .await?;
 
         println!("💾 CreateEvent 已保存到数据库");
+
+        // 异步获取并更新元数据（不阻塞主流程）
+        let mint_clone = mint_str.clone();
+        let uri_clone = event.uri.clone();
+        let db_clone = self.db.clone();
+        
+        tokio::spawn(async move {
+            println!("📥 开始异步获取元数据: {}", mint_clone);
+            let metadata_service = MetadataParserService::new();
+            
+            match metadata_service.fetch_metadata_with_retry(&uri_clone, 3).await {
+                Ok(metadata) => {
+                    // 更新数据库
+                    if let Ok(Some(event_model)) = CreateEventEntity::find()
+                        .filter(create_event_entity::Column::Mint.eq(&mint_clone))
+                        .one(&db_clone)
+                        .await
+                    {
+                        let mut active_model: create_event_entity::ActiveModel = event_model.into();
+                        active_model.twitter = Set(metadata.twitter);
+                        active_model.telegram = Set(metadata.telegram);
+                        active_model.website = Set(metadata.website);
+                        active_model.image = Set(metadata.image);
+
+                        if let Err(e) = active_model.update(&db_clone).await {
+                            eprintln!("❌ 更新元数据失败 {}: {}", mint_clone, e);
+                        } else {
+                            println!("✅ 元数据已更新: {}", mint_clone);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ 获取元数据失败 {}: {}", mint_clone, e);
+                }
+            }
+        });
+
         Ok(())
     }
 
@@ -304,5 +346,127 @@ impl DatabaseService {
             .await?;
 
         Ok(events)
+    }
+
+    /// 从 URI 解析元数据并更新到数据库
+    ///
+    /// # Arguments
+    /// * `mint` - Token mint 地址
+    ///
+    /// # Returns
+    /// * `Result<(), Box<dyn std::error::Error>>` - 成功返回 Ok，失败返回错误
+    ///
+    /// # Example
+    /// ```ignore
+    /// db_service.fetch_and_update_metadata("HZWKVfammvEHaNfPnYTppEgXYppZWfqPiGgxwgAjEdVv").await?;
+    /// ```
+    pub async fn fetch_and_update_metadata(&self, mint: &str) -> Result<(), Box<dyn std::error::Error>> {
+        // 1. 从数据库获取事件记录
+        let event = CreateEventEntity::find()
+            .filter(create_event_entity::Column::Mint.eq(mint))
+            .one(&self.db)
+            .await?;
+
+        let event = match event {
+            Some(e) => e,
+            None => {
+                return Err(format!("未找到 mint: {} 的记录", mint).into());
+            }
+        };
+
+        // 检查是否已经有元数据
+        if event.twitter.is_some() || event.telegram.is_some() || event.website.is_some() || event.image.is_some() {
+            println!("ℹ️  记录 {} 已有元数据，跳过", mint);
+            return Ok(());
+        }
+
+        // 2. 获取并解析 URI 元数据
+        let metadata_service = MetadataParserService::new();
+        let metadata = metadata_service
+            .fetch_metadata_with_retry(&event.uri, 3)
+            .await?;
+
+        // 3. 更新数据库记录
+        let mut active_model: create_event_entity::ActiveModel = event.into();
+        active_model.twitter = Set(metadata.twitter);
+        active_model.telegram = Set(metadata.telegram);
+        active_model.website = Set(metadata.website);
+        active_model.image = Set(metadata.image);
+
+        active_model.update(&self.db).await?;
+
+        println!("✅ 元数据已更新到数据库: {}", mint);
+        Ok(())
+    }
+
+    /// 批量处理所有未解析元数据的记录
+    ///
+    /// # Returns
+    /// * `Result<(usize, usize), Box<dyn std::error::Error>>` - 返回 (成功数, 失败数)
+    pub async fn fetch_and_update_all_metadata(&self) -> Result<(usize, usize), Box<dyn std::error::Error>> {
+        println!("🔄 开始批量获取元数据...");
+
+        // 查询所有未解析元数据的记录
+        let events = CreateEventEntity::find()
+            .filter(
+                create_event_entity::Column::Twitter.is_null()
+                    .and(create_event_entity::Column::Telegram.is_null())
+                    .and(create_event_entity::Column::Website.is_null())
+                    .and(create_event_entity::Column::Image.is_null())
+            )
+            .all(&self.db)
+            .await?;
+
+        if events.is_empty() {
+            println!("✅ 所有记录都已有元数据");
+            return Ok((0, 0));
+        }
+
+        println!("📊 找到 {} 条待处理记录", events.len());
+
+        let mut success_count = 0;
+        let mut fail_count = 0;
+        let metadata_service = MetadataParserService::new();
+
+        for (index, event) in events.iter().enumerate() {
+            println!("\n[{}/{}] 处理: {} ({})", index + 1, events.len(), event.name, event.mint);
+
+            match metadata_service.fetch_metadata_with_retry(&event.uri, 3).await {
+                Ok(metadata) => {
+                    // 更新数据库
+                    let mut active_model: create_event_entity::ActiveModel = event.clone().into();
+                    active_model.twitter = Set(metadata.twitter);
+                    active_model.telegram = Set(metadata.telegram);
+                    active_model.website = Set(metadata.website);
+                    active_model.image = Set(metadata.image);
+
+                    match active_model.update(&self.db).await {
+                        Ok(_) => {
+                            println!("✅ 元数据已更新");
+                            success_count += 1;
+                        }
+                        Err(e) => {
+                            eprintln!("❌ 数据库更新失败: {}", e);
+                            fail_count += 1;
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ 获取元数据失败: {}", e);
+                    fail_count += 1;
+                }
+            }
+
+            // 避免请求过快，每次请求后休眠
+            if index < events.len() - 1 {
+                tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+            }
+        }
+
+        println!("\n📊 批量处理完成:");
+        println!("  ✅ 成功: {}", success_count);
+        println!("  ❌ 失败: {}", fail_count);
+
+        Ok((success_count, fail_count))
     }
 }
