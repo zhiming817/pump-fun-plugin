@@ -5,6 +5,7 @@ import { AppRoutes } from '@/app-routes.tsx'
 const links: { label: string; path: string }[] = [
   //
   { label: 'Home', path: '/' },
+  { label: 'Coin', path: '/coin' },
   { label: 'Oath', path: '/oath' },
   { label: 'Account', path: '/account' },
 ]
