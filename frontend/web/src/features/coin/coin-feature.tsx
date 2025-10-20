@@ -38,7 +38,7 @@ export default function CoinFeature() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Coin Events</h1>
+          <h1 className="text-3xl font-bold">Coins</h1>
           <p className="text-muted-foreground mt-1">
             {data ? `共 ${data.total} 个代币` : 'Loading...'}
           </p>
