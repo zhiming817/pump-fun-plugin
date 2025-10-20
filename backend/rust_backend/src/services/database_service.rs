@@ -172,6 +172,18 @@ impl DatabaseService {
         Ok(events)
     }
 
+    /// 分页获取 CreateEvent 记录
+    pub async fn get_events_paginated(&self, offset: u64, limit: u64) -> Result<Vec<CreateEventModel>, Box<dyn std::error::Error>> {
+        let events = CreateEventEntity::find()
+            .order_by_desc(create_event_entity::Column::CreatedAt)
+            .offset(offset)
+            .limit(limit)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
+
     /// 根据 mint 查询事件
     pub async fn get_event_by_mint(&self, mint: &str) -> Result<Option<CreateEventModel>, Box<dyn std::error::Error>> {
         let event = CreateEventEntity::find()
@@ -202,6 +214,29 @@ impl DatabaseService {
             .await?;
 
         Ok(events)
+    }
+
+    /// 分页根据创建者查询事件
+    pub async fn get_events_by_creator_paginated(&self, creator: &str, offset: u64, limit: u64) -> Result<Vec<CreateEventModel>, Box<dyn std::error::Error>> {
+        let events = CreateEventEntity::find()
+            .filter(create_event_entity::Column::Creator.eq(creator))
+            .order_by_desc(create_event_entity::Column::CreatedAt)
+            .offset(offset)
+            .limit(limit)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
+
+    /// 统计创建者的事件总数
+    pub async fn count_by_creator(&self, creator: &str) -> Result<u64, Box<dyn std::error::Error>> {
+        let count = CreateEventEntity::find()
+            .filter(create_event_entity::Column::Creator.eq(creator))
+            .count(&self.db)
+            .await?;
+
+        Ok(count)
     }
 
     /// 统计总记录数

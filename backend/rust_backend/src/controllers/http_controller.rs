@@ -1,5 +1,5 @@
 use axum::{
-    extract::State,
+    extract::{State, Query},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -26,6 +26,8 @@ pub struct ApiResponse<T> {
     pub data: Option<T>,
     pub error: Option<String>,
     pub total: Option<u64>,
+    pub page: Option<u64>,
+    pub page_size: Option<u64>,
 }
 
 impl<T> ApiResponse<T> {
@@ -35,6 +37,8 @@ impl<T> ApiResponse<T> {
             data: Some(data),
             error: None,
             total: None,
+            page: None,
+            page_size: None,
         }
     }
 
@@ -44,6 +48,19 @@ impl<T> ApiResponse<T> {
             data: Some(data),
             error: None,
             total: Some(total),
+            page: None,
+            page_size: None,
+        }
+    }
+
+    pub fn success_with_pagination(data: T, total: u64, page: u64, page_size: u64) -> Self {
+        Self {
+            success: true,
+            data: Some(data),
+            error: None,
+            total: Some(total),
+            page: Some(page),
+            page_size: Some(page_size),
         }
     }
 
@@ -53,7 +70,36 @@ impl<T> ApiResponse<T> {
             data: None,
             error: Some(error),
             total: None,
+            page: None,
+            page_size: None,
         }
+    }
+}
+
+/// 分页参数
+#[derive(Debug, Deserialize)]
+pub struct PaginationParams {
+    #[serde(default = "default_page")]
+    pub page: u64,
+    #[serde(default = "default_page_size")]
+    pub page_size: u64,
+}
+
+fn default_page() -> u64 {
+    1
+}
+
+fn default_page_size() -> u64 {
+    10
+}
+
+impl PaginationParams {
+    pub fn offset(&self) -> u64 {
+        (self.page - 1) * self.page_size
+    }
+
+    pub fn limit(&self) -> u64 {
+        self.page_size
     }
 }
 
@@ -86,11 +132,15 @@ async fn root_handler() -> impl IntoResponse {
         "version": "0.1.0",
         "endpoints": {
             "health": "/health",
-            "all_events": "/api/events",
-            "recent_events": "/api/events/recent/:limit",
+            "all_events": "/api/events?page=1&page_size=10",
+            "recent_events": "/api/events/recent/{limit}",
             "count": "/api/events/count",
-            "by_mint": "/api/events/mint/:mint",
-            "by_creator": "/api/events/creator/:creator"
+            "by_mint": "/api/events/mint/{mint}",
+            "by_creator": "/api/events/creator/{creator}?page=1&page_size=10"
+        },
+        "pagination": {
+            "description": "Use query parameters: page (default: 1) and page_size (default: 10)",
+            "example": "/api/events?page=2&page_size=20"
         }
     }))
 }
@@ -103,14 +153,32 @@ async fn health_handler() -> impl IntoResponse {
     }))
 }
 
-/// 获取所有事件处理器
+/// 获取所有事件处理器（支持分页）
 async fn get_all_events_handler(
     State(state): State<AppState>,
+    Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<Vec<CreateEventModel>>>, (StatusCode, Json<ApiResponse<Vec<CreateEventModel>>>)> {
-    match state.db_service.get_all_events().await {
+    // 获取总数
+    let total = match state.db_service.count_all().await {
+        Ok(count) => count,
+        Err(e) => {
+            eprintln!("❌ 获取总数失败: {}", e);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiResponse::error(format!("Failed to count events: {}", e)))
+            ));
+        }
+    };
+
+    // 分页获取事件
+    match state.db_service.get_events_paginated(params.offset(), params.limit()).await {
         Ok(events) => {
-            let total = events.len() as u64;
-            Ok(Json(ApiResponse::success_with_total(events, total)))
+            Ok(Json(ApiResponse::success_with_pagination(
+                events,
+                total,
+                params.page,
+                params.page_size
+            )))
         }
         Err(e) => {
             eprintln!("❌ 获取事件失败: {}", e);
@@ -175,15 +243,33 @@ async fn get_event_by_mint_handler(
     }
 }
 
-/// 根据创建者查询事件处理器
+/// 根据创建者查询事件处理器（支持分页）
 async fn get_events_by_creator_handler(
     State(state): State<AppState>,
     axum::extract::Path(creator): axum::extract::Path<String>,
+    Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<Vec<CreateEventModel>>>, (StatusCode, Json<ApiResponse<Vec<CreateEventModel>>>)> {
-    match state.db_service.get_events_by_creator(&creator).await {
+    // 获取该创建者的事件总数
+    let total = match state.db_service.count_by_creator(&creator).await {
+        Ok(count) => count,
+        Err(e) => {
+            eprintln!("❌ 统计创建者事件失败: {}", e);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiResponse::error(format!("Failed to count events: {}", e)))
+            ));
+        }
+    };
+
+    // 分页查询
+    match state.db_service.get_events_by_creator_paginated(&creator, params.offset(), params.limit()).await {
         Ok(events) => {
-            let count = events.len() as u64;
-            Ok(Json(ApiResponse::success_with_total(events, count)))
+            Ok(Json(ApiResponse::success_with_pagination(
+                events,
+                total,
+                params.page,
+                params.page_size
+            )))
         }
         Err(e) => {
             eprintln!("❌ 查询创建者事件失败: {}", e);
