@@ -81,9 +81,14 @@ export enum OathStatus {
 export type CreateOathArgs = {
   content: string;
   category: string;
+  categoryId: string;
   startTime: bigint;
   endTime: bigint;
+  stableCollateral: bigint;
   collateralTokens: CollateralToken[];
+  isOverCollateralized: boolean;
+  tokenAddress: PublicKey | null;
+  targetApy: bigint | null;
 };
 
 export type CompleteOathArgs = {

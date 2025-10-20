@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useCreateOath, useIsInitialized } from '@/lib/contract';
-import { CreateOathArgs } from '@/lib/contract/types';
+import { CreateOathArgs } from '@/lib/contract/types-v2';
 import { useWalletUi } from '@wallet-ui/react';
 
 export function CreateOathForm() {
@@ -38,13 +38,22 @@ export function CreateOathForm() {
       const endTimestamp = BigInt(
         Math.floor(new Date(formData.endTime).getTime() / 1000)
       );
+      
+      // 解析抵押金额（假设是 SOL，转换为 lamports）
+      const collateralAmount = parseFloat(formData.collateral) || 0;
+      const stableCollateral = BigInt(Math.floor(collateralAmount * 1000000000)); // SOL to lamports
 
       const args: CreateOathArgs = {
         content: formData.content,
         category: formData.category,
+        categoryId: 'default', // 默认分类 ID
         startTime: startTimestamp,
         endTime: endTimestamp,
-        collateralTokens: [], // 示例：空数组，实际使用时需要填充
+        stableCollateral: stableCollateral,
+        collateralTokens: [], // 暂时为空数组
+        isOverCollateralized: stableCollateral > BigInt(1000000000), // 超过 1 SOL 认为过度抵押
+        tokenAddress: null, // 可选字段
+        targetApy: null, // 可选字段
       };
 
       createOath(args);
