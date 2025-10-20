@@ -3,7 +3,7 @@
 # Solana RPC 配置
 solana:
   # 当前激活的网络: mainnet | devnet | testnet
-  active_network: mainnet
+  active_network: devnet
   
   # 多个网络的 RPC 端点配置
   networks:
@@ -55,6 +55,7 @@ database:
   mysql_port: 3306
   mysql_user: "root"
   mysql_password: "root"
+  # main:pumpfun_mainnet    dev :pumpfun
   mysql_database: "pumpfun_mainnet"
   
   # 连接池配置
