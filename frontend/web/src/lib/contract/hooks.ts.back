@@ -1,0 +1,313 @@
+/**
+ * PumpFun Oath 合约 React Hooks
+ */
+
+import { useState, useEffect, useCallback } from 'react';
+import { PublicKey, Transaction } from '@solana/web3.js';
+import { useSolana } from '@/components/solana/use-solana';
+import { OathContract } from './oath-contract';
+import {
+  Oath,
+  GlobalState,
+  CollateralPool,
+  CreateOathArgs,
+  CompleteOathArgs,
+  SlashOathArgs,
+} from './types';
+
+/**
+ * 使用 Oath 合约
+ */
+export function useOathContract() {
+  const { client } = useSolana();
+  const connection = client.rpc;
+  const [contract] = useState(() => new OathContract(connection));
+
+  return contract;
+}
+
+/**
+ * 查询全局状态
+ */
+export function useGlobalState() {
+  const contract = useOathContract();
+  const [globalState, setGlobalState] = useState<GlobalState | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const state = await contract.getGlobalState();
+      setGlobalState(state);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [contract]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { globalState, loading, error, refresh };
+}
+
+/**
+ * 查询抵押池信息
+ */
+export function useCollateralPool() {
+  const contract = useOathContract();
+  const [pool, setPool] = useState<CollateralPool | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const poolData = await contract.getCollateralPool();
+      setPool(poolData);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [contract]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { pool, loading, error, refresh };
+}
+
+/**
+ * 查询单个誓言
+ */
+export function useOath(oathId: bigint | null) {
+  const contract = useOathContract();
+  const [oath, setOath] = useState<Oath | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!oathId) {
+      setOath(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const oathData = await contract.getOath(oathId);
+      setOath(oathData);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [contract, oathId]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { oath, loading, error, refresh };
+}
+
+/**
+ * 查询用户的所有誓言
+ */
+export function useUserOaths(creator?: PublicKey) {
+  const contract = useOathContract();
+  const { publicKey } = useWallet();
+  const [oaths, setOaths] = useState<Oath[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const targetKey = creator || publicKey;
+
+  const refresh = useCallback(async () => {
+    if (!targetKey) {
+      setOaths([]);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const userOaths = await contract.getUserOaths(targetKey);
+      setOaths(userOaths);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [contract, targetKey]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { oaths, loading, error, refresh };
+}
+
+/**
+ * 创建誓言
+ */
+export function useCreateOath() {
+  const contract = useOathContract();
+  const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const createOath = useCallback(
+    async (args: CreateOathArgs) => {
+      if (!publicKey) {
+        throw new Error('钱包未连接');
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const instruction = await contract.createOath(publicKey, args);
+        const transaction = new Transaction().add(instruction);
+        
+        const signature = await sendTransaction(transaction, connection);
+        await connection.confirmTransaction(signature, 'confirmed');
+
+        return signature;
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [contract, publicKey, sendTransaction, connection]
+  );
+
+  return { createOath, loading, error };
+}
+
+/**
+ * 完成誓言
+ */
+export function useCompleteOath() {
+  const contract = useOathContract();
+  const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const completeOath = useCallback(
+    async (oathId: bigint, args: CompleteOathArgs) => {
+      if (!publicKey) {
+        throw new Error('钱包未连接');
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const instruction = await contract.completeOath(oathId, publicKey, args);
+        const transaction = new Transaction().add(instruction);
+        
+        const signature = await sendTransaction(transaction, connection);
+        await connection.confirmTransaction(signature, 'confirmed');
+
+        return signature;
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [contract, publicKey, sendTransaction, connection]
+  );
+
+  return { completeOath, loading, error };
+}
+
+/**
+ * 削减誓言
+ */
+export function useSlashOath() {
+  const contract = useOathContract();
+  const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const slashOath = useCallback(
+    async (oathId: bigint, args: SlashOathArgs) => {
+      if (!publicKey) {
+        throw new Error('钱包未连接');
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const instruction = await contract.slashOath(oathId, publicKey, args);
+        const transaction = new Transaction().add(instruction);
+        
+        const signature = await sendTransaction(transaction, connection);
+        await connection.confirmTransaction(signature, 'confirmed');
+
+        return signature;
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [contract, publicKey, sendTransaction, connection]
+  );
+
+  return { slashOath, loading, error };
+}
+
+/**
+ * 初始化合约
+ */
+export function useInitializeContract() {
+  const contract = useOathContract();
+  const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const initialize = useCallback(async () => {
+    if (!publicKey) {
+      throw new Error('钱包未连接');
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const instruction = await contract.initialize(publicKey);
+      const transaction = new Transaction().add(instruction);
+      
+      const signature = await sendTransaction(transaction, connection);
+      await connection.confirmTransaction(signature, 'confirmed');
+
+      return signature;
+    } catch (err) {
+      setError(err as Error);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [contract, publicKey, sendTransaction, connection]);
+
+  return { initialize, loading, error };
+}
