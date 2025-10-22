@@ -16,17 +16,14 @@ const Navbar = () => {
   };
 
   const navigation = [
-    // { name: 'Vaults', href: '/vaults' },
-    { name: 'Oaths', href: '/oaths' },
-  ];
-
-  const createItems = [
-    // { name: 'Create Vault', href: '/vaults/create' },
-    { name: 'Create Oath', href: '/oaths/create' },
+    { name: 'Home', href: '/' },
+    { name: 'Active Oaths', href: '/oaths' },
+    { name: 'Protocol Stats', href: '/stats' },
+    { name: 'Browse Projects', href: '/projects' },
   ];
 
   const isActive = (href) => {
-    if (href === '/vaults') return location.pathname === '/vaults' || location.pathname === '/';
+    if (href === '/') return location.pathname === '/';
     if (href === '/oaths') return location.pathname === '/oaths';
     return location.pathname.startsWith(href);
   };
@@ -37,18 +34,20 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/90">
+    <nav className="bg-[#0a0a0a] border-b border-gray-800 sticky top-0 z-50 backdrop-blur-sm bg-[#0a0a0a]/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <button
-            onClick={() => handleNavigation('/vaults')}
+            onClick={() => handleNavigation('/')}
             className="flex items-center space-x-2 cursor-pointer"
           >
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-lg">
-              <span className="text-white text-xl font-bold">🏦</span>
+            <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-2 rounded-lg">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
             </div>
-            <span className="text-xl font-bold text-gray-900">AntiDump</span>
+            <span className="text-xl font-bold text-white">AntiDump</span>
           </button>
 
           {/* Desktop Navigation */}
@@ -59,35 +58,21 @@ const Navbar = () => {
                 onClick={() => handleNavigation(item.href)}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive(item.href)
-                    ? 'text-indigo-600 bg-indigo-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-white bg-emerald-500'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
                 }`}
               >
                 {item.name}
               </button>
             ))}
             
-            {/* Create Dropdown */}
-            <div className="relative group">
-              <button className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors flex items-center space-x-1">
-                <span>Create</span>
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              
-              <div className="absolute top-full left-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                {createItems.map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={() => handleNavigation(item.href)}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 first:rounded-t-lg last:rounded-b-lg"
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Launch Oath Button */}
+            <button
+              onClick={() => handleNavigation('/oaths/create')}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+            >
+              Launch Oath
+            </button>
           </div>
 
           {/* Wallet Connection */}
@@ -95,23 +80,23 @@ const Navbar = () => {
             {publicKey ? (
               <div className="flex items-center space-x-3">
                 <div className="text-right hidden sm:block">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-white">
                     {formatAddress(publicKey)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-400">
                     Connected
                   </div>
                 </div>
-                <WalletMultiButton />
+                <WalletMultiButton className="!bg-emerald-500 hover:!bg-emerald-600" />
               </div>
             ) : (
-              <WalletMultiButton />
+              <WalletMultiButton className="!bg-emerald-500 hover:!bg-emerald-600" />
             )}
 
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              className="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800"
             >
               {isMenuOpen ? (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,7 +113,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 pt-4 pb-4">
+          <div className="md:hidden border-t border-gray-800 pt-4 pb-4">
             <div className="space-y-2">
               {navigation.map((item) => (
                 <button
@@ -136,8 +121,8 @@ const Navbar = () => {
                   onClick={() => handleNavigation(item.href)}
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     isActive(item.href)
-                      ? 'text-indigo-600 bg-indigo-50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'text-emerald-400 bg-emerald-500/10'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }`}
                 >
                   {item.name}
@@ -145,12 +130,12 @@ const Navbar = () => {
               ))}
               
               {/* Create Items in Mobile */}
-              <div className="border-t border-gray-200 pt-2 mt-2">
+              <div className="border-t border-gray-800 pt-2 mt-2">
                 {createItems.map((item) => (
                   <button
                     key={item.name}
                     onClick={() => handleNavigation(item.href)}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
                   >
                     {item.name}
                   </button>
