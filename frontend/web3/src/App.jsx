@@ -6,6 +6,7 @@ import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adap
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { clusterApiUrl } from '@solana/web3.js';
+import Home from './components/Home.jsx';
 import CreateVaultFlow from './components/CreateVaultFlow.jsx';
 import VaultList from './components/VaultList.jsx';
 import VaultDetail from './components/VaultDetail.jsx';
@@ -40,7 +41,7 @@ function App() {
           <WalletModalProvider>
             <HashRouter>
               <Routes>
-                <Route path="/" element={<Navigate to="/oaths" replace />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/vaults" element={<VaultList />} />
                 <Route path="/vaults/create" element={<CreateVaultFlow />} />
                 <Route path="/vaults/:vaultId" element={<VaultDetail />} />

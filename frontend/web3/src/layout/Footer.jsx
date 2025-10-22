@@ -5,29 +5,28 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-200">
+    <footer className="bg-[#0a0a0a] border-t border-gray-800">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-2 rounded-lg">
                 <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-gray-900">AntiDump</span>
+              <span className="text-xl font-bold text-white">AntiDump</span>
             </div>
-            <p className="text-gray-600 max-w-md">
-              Decentralized yield optimization protocol on Solana. 
-              Maximize your returns with automated market allocation strategies.
+            <p className="text-gray-400 max-w-md">
+              From Information to Protection - The first protocol that structurally prevents rug pulls through creator commitment mechanisms.
             </p>
             <div className="flex space-x-4 mt-6">
               <a
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-500 hover:text-gray-300 transition-colors"
                 aria-label="GitHub"
               >
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -38,7 +37,7 @@ const Footer = () => {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-500 hover:text-gray-300 transition-colors"
                 aria-label="Twitter"
               >
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -53,7 +52,7 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">
               Resources
             </h3>
             <ul className="space-y-3">
@@ -62,7 +61,7 @@ const Footer = () => {
                   href="https://solana.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-gray-900 transition-colors flex items-center space-x-1"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center space-x-1"
                 >
                   <span>Solana Network</span>
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,7 +74,7 @@ const Footer = () => {
                   href="https://pump.fun/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-gray-900 transition-colors flex items-center space-x-1"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center space-x-1"
                 >
                   <span>Pump</span>
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,17 +87,17 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-200">
+        <div className="mt-8 pt-8 border-t border-gray-800">
           <div className="md:flex md:items-center md:justify-between">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-400">
               &copy; {currentYear} AntiDump. Built on Solana Network.
             </div>
             <div className="mt-4 md:mt-0">
-              <div className="flex space-x-6 text-sm text-gray-600">
-                <a href="#privacy" className="hover:text-gray-900 transition-colors">
+              <div className="flex space-x-6 text-sm text-gray-400">
+                <a href="#privacy" className="hover:text-white transition-colors">
                   Privacy Policy
                 </a>
-                <a href="#terms" className="hover:text-gray-900 transition-colors">
+                <a href="#terms" className="hover:text-white transition-colors">
                   Terms of Service
                 </a>
               </div>
