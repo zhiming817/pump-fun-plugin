@@ -1,0 +1,872 @@
+{
+  "address": "HZWKVfammvEHaNfPnYTppEgXYppZWfqPiGgxwgAjEdVv",
+  "metadata": {
+    "name": "vault_contract_solana",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "docs": [
+    "Vault Contract Solana 程序",
+    "",
+    "这是一个 DeFi Vault 智能合约，提供以下功能：",
+    "- 初始化全局状态",
+    "- 创建 Vault",
+    "- 更新 Vault 状态"
+  ],
+  "instructions": [
+    {
+      "name": "create_vault",
+      "docs": [
+        "创建新的 Vault",
+        "",
+        "允许用户创建自定义的 DeFi Vault，包含策略、配置和初始状态"
+      ],
+      "discriminator": [
+        29,
+        237,
+        247,
+        208,
+        193,
+        82,
+        54,
+        135
+      ],
+      "accounts": [
+        {
+          "name": "vault_global",
+          "docs": [
+            "Vault 全局状态账户（可变，需要更新计数器）"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "docs": [
+            "新创建的 Vault 账户"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault_global.vault_count",
+                "account": "VaultGlobal"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "docs": [
+            "创建者账户（支付账户创建费用）"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "系统程序"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "target_apy",
+          "type": "u64"
+        },
+        {
+          "name": "strategy",
+          "type": "string"
+        },
+        {
+          "name": "initial_deposit",
+          "type": "u64"
+        },
+        {
+          "name": "vault_name",
+          "type": "string"
+        },
+        {
+          "name": "vault_symbol",
+          "type": "string"
+        },
+        {
+          "name": "vault_description",
+          "type": "string"
+        },
+        {
+          "name": "curator",
+          "type": "string"
+        },
+        {
+          "name": "timelock_days",
+          "type": "u64"
+        },
+        {
+          "name": "guardian_opt",
+          "type": "bool"
+        },
+        {
+          "name": "guardian_value",
+          "type": "string"
+        },
+        {
+          "name": "fee_rate",
+          "type": "u64"
+        },
+        {
+          "name": "performance_fee",
+          "type": "u64"
+        },
+        {
+          "name": "markets",
+          "type": {
+            "vec": "string"
+          }
+        },
+        {
+          "name": "market_addresses",
+          "type": {
+            "vec": "string"
+          }
+        },
+        {
+          "name": "allocation_percentages",
+          "type": {
+            "vec": "u64"
+          }
+        },
+        {
+          "name": "strategy_name",
+          "type": "string"
+        },
+        {
+          "name": "strategy_description",
+          "type": "string"
+        },
+        {
+          "name": "risk_level",
+          "type": "u8"
+        },
+        {
+          "name": "supported_tokens",
+          "type": {
+            "vec": "string"
+          }
+        },
+        {
+          "name": "strategy_type",
+          "type": "string"
+        },
+        {
+          "name": "min_duration",
+          "type": "u64"
+        },
+        {
+          "name": "max_duration",
+          "type": "u64"
+        },
+        {
+          "name": "auto_compound",
+          "type": "bool"
+        },
+        {
+          "name": "emergency_exit",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "初始化 Vault 全局状态",
+        "",
+        "只能调用一次，用于设置管理员和初始化计数器"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "vault_global",
+          "docs": [
+            "Vault 全局状态账户"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "管理员账户（支付账户创建费用）"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "系统程序"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_vault_state",
+      "docs": [
+        "更新 Vault 状态",
+        "",
+        "只有 Vault 创建者可以更新状态"
+      ],
+      "discriminator": [
+        6,
+        239,
+        235,
+        198,
+        248,
+        227,
+        17,
+        41
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "docs": [
+            "Vault 账户（可变，需要更新状态）",
+            "必须由创建者签名"
+          ],
+          "writable": true
+        },
+        {
+          "name": "creator",
+          "docs": [
+            "创建者账户（必须签名）"
+          ],
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_apy",
+          "type": "u64"
+        },
+        {
+          "name": "new_total_assets",
+          "type": "u64"
+        },
+        {
+          "name": "new_share_price",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Vault",
+      "discriminator": [
+        211,
+        8,
+        232,
+        43,
+        2,
+        152,
+        117,
+        119
+      ]
+    },
+    {
+      "name": "VaultGlobal",
+      "discriminator": [
+        132,
+        178,
+        91,
+        253,
+        135,
+        214,
+        215,
+        45
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "VaultCreatedEvent",
+      "discriminator": [
+        81,
+        80,
+        244,
+        58,
+        136,
+        54,
+        236,
+        111
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "Allocation",
+      "docs": [
+        "资金分配结构",
+        "记录具体市场的资金分配信息"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "market_address",
+            "docs": [
+              "市场地址"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "supply_assets",
+            "docs": [
+              "投入资产"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "supply_assets_usd",
+            "docs": [
+              "投入资产USD价值"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "expected_apy",
+            "docs": [
+              "预期年化收益率"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketAllocation",
+      "docs": [
+        "市场分配结构体",
+        "记录 Vault 在各个 DeFi 市场的资金分配比例"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "market_address",
+            "docs": [
+              "市场合约地址"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "allocation_percentage",
+            "docs": [
+              "分配百分比，基点表示 (10000 = 100%)"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vault",
+      "docs": [
+        "Vault 主结构",
+        "包含完整的 Vault 信息"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "docs": [
+              "Vault 唯一 ID"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "docs": [
+              "创建者公钥"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "strategy",
+            "docs": [
+              "投资策略"
+            ],
+            "type": {
+              "defined": {
+                "name": "VaultStrategy"
+              }
+            }
+          },
+          {
+            "name": "configuration",
+            "docs": [
+              "配置信息"
+            ],
+            "type": {
+              "defined": {
+                "name": "VaultConfiguration"
+              }
+            }
+          },
+          {
+            "name": "state",
+            "docs": [
+              "状态信息"
+            ],
+            "type": {
+              "defined": {
+                "name": "VaultState"
+              }
+            }
+          },
+          {
+            "name": "allocations",
+            "docs": [
+              "资金分配列表"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Allocation"
+                }
+              }
+            }
+          },
+          {
+            "name": "created_at",
+            "docs": [
+              "创建时间戳"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultConfiguration",
+      "docs": [
+        "Vault 配置结构",
+        "包含 Vault 的基本信息和配置参数"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "Vault 名称"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "docs": [
+              "Vault 符号"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "docs": [
+              "Vault 描述"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "strategy",
+            "docs": [
+              "策略名称"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "curator",
+            "docs": [
+              "策略管理员"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "timelock",
+            "docs": [
+              "时间锁定期（天数）"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "guardian",
+            "docs": [
+              "guardian 选项"
+            ],
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "fee_rate",
+            "docs": [
+              "费率百分比，基点表示 (100 = 1%)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "performance_fee",
+            "docs": [
+              "表现费百分比，基点表示 (100 = 1%)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "markets",
+            "docs": [
+              "市场地址列表"
+            ],
+            "type": {
+              "vec": "string"
+            }
+          },
+          {
+            "name": "allocations",
+            "docs": [
+              "分配比例"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "MarketAllocation"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultCreatedEvent",
+      "docs": [
+        "Vault 创建事件",
+        "当新的 Vault 被创建时触发"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "docs": [
+              "Vault 唯一 ID"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "docs": [
+              "创建者公钥"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "docs": [
+              "Vault 名称"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "docs": [
+              "Vault 符号"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "target_apy",
+            "docs": [
+              "目标年化收益率"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "initial_deposit",
+            "docs": [
+              "初始存款"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "strategy_type",
+            "docs": [
+              "策略类型"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "risk_level",
+            "docs": [
+              "风险等级"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "created_at",
+            "docs": [
+              "创建时间戳"
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultGlobal",
+      "docs": [
+        "Vault 全局状态",
+        "用于跟踪所有 Vault 的计数和管理员权限"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "管理员公钥"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "vault_count",
+            "docs": [
+              "Vault 计数器，用于生成唯一 ID"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultState",
+      "docs": [
+        "Vault 状态结构",
+        "记录 Vault 的实时状态信息"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "apy",
+            "docs": [
+              "目标年化收益率 (基点表示, 6630 = 6.63%)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "current_apy",
+            "docs": [
+              "当前年化收益率 (基点表示, 6630 = 6.63%)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_assets",
+            "docs": [
+              "总资产数量"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_assets_usd",
+            "docs": [
+              "总资产USD价值"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_supply",
+            "docs": [
+              "总份额"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "share_price",
+            "docs": [
+              "份额价格（精度为6位小数）"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "performance_fee_collected",
+            "docs": [
+              "已收取的表现费"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultStrategy",
+      "docs": [
+        "Vault 投资策略结构体",
+        "定义 Vault 的投资策略和风险参数"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "策略名称"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "docs": [
+              "策略描述"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "risk_level",
+            "docs": [
+              "风险等级 (0-低风险, 1-中风险, 2-高风险)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "supported_tokens",
+            "docs": [
+              "支持的代币列表"
+            ],
+            "type": {
+              "vec": "string"
+            }
+          },
+          {
+            "name": "strategy_type",
+            "docs": [
+              "策略类型 (defi, arbitrage, yield_farming 等)"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "min_duration",
+            "docs": [
+              "最小投资期限（天数）"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_duration",
+            "docs": [
+              "最大投资期限（天数）"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "auto_compound",
+            "docs": [
+              "是否自动复投"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "emergency_exit",
+            "docs": [
+              "是否支持紧急退出"
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ]
+}

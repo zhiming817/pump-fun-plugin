@@ -1,0 +1,1014 @@
+{
+  "address": "Ad4ac7oFBgHA9NZ7jkvhUurj5iytxHighGtTRokbrLbQ",
+  "metadata": {
+    "name": "pumpfun_oath_contract",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "complete_oath",
+      "docs": [
+        "完成誓言"
+      ],
+      "discriminator": [
+        49,
+        230,
+        35,
+        247,
+        153,
+        202,
+        176,
+        116
+      ],
+      "accounts": [
+        {
+          "name": "oath",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  97,
+                  116,
+                  104
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oath.id",
+                "account": "Oath"
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  108,
+                  108,
+                  97,
+                  116,
+                  101,
+                  114,
+                  97,
+                  108,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "CompleteOathArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_oath",
+      "docs": [
+        "创建誓言"
+      ],
+      "discriminator": [
+        18,
+        53,
+        143,
+        138,
+        106,
+        66,
+        255,
+        195
+      ],
+      "accounts": [
+        {
+          "name": "global_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "oath",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  97,
+                  116,
+                  104
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "global_state.next_oath_id",
+                "account": "GlobalState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  108,
+                  108,
+                  97,
+                  116,
+                  101,
+                  114,
+                  97,
+                  108,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "CreateOathArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_oath_list",
+      "docs": [
+        "获取誓言列表（验证查询参数）"
+      ],
+      "discriminator": [
+        199,
+        131,
+        107,
+        168,
+        228,
+        95,
+        200,
+        128
+      ],
+      "accounts": [
+        {
+          "name": "global_state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "GetOathListArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "初始化合约"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "global_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  108,
+                  108,
+                  97,
+                  116,
+                  101,
+                  114,
+                  97,
+                  108,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "slash_oath",
+      "docs": [
+        "削减誓言（管理员功能）"
+      ],
+      "discriminator": [
+        211,
+        115,
+        8,
+        55,
+        131,
+        55,
+        255,
+        7
+      ],
+      "accounts": [
+        {
+          "name": "oath",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  97,
+                  116,
+                  104
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oath.id",
+                "account": "Oath"
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  108,
+                  108,
+                  97,
+                  116,
+                  101,
+                  114,
+                  97,
+                  108,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "SlashOathArgs"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "CollateralPool",
+      "discriminator": [
+        186,
+        4,
+        253,
+        240,
+        93,
+        243,
+        212,
+        195
+      ]
+    },
+    {
+      "name": "GlobalState",
+      "discriminator": [
+        163,
+        46,
+        74,
+        168,
+        216,
+        123,
+        133,
+        98
+      ]
+    },
+    {
+      "name": "Oath",
+      "discriminator": [
+        222,
+        97,
+        48,
+        50,
+        185,
+        60,
+        175,
+        24
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ContractPaused",
+      "msg": "Contract is paused"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidStartTime",
+      "msg": "Invalid start time"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidEndTime",
+      "msg": "Invalid end time"
+    },
+    {
+      "code": 6003,
+      "name": "ContentTooLong",
+      "msg": "Content too long"
+    },
+    {
+      "code": 6004,
+      "name": "CategoryTooLong",
+      "msg": "Category too long"
+    },
+    {
+      "code": 6005,
+      "name": "TooManyTokens",
+      "msg": "Too many tokens"
+    },
+    {
+      "code": 6006,
+      "name": "InsufficientCollateral",
+      "msg": "Insufficient collateral"
+    },
+    {
+      "code": 6007,
+      "name": "ArithmeticOverflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6008,
+      "name": "OathNotFound",
+      "msg": "Oath not found"
+    },
+    {
+      "code": 6009,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6010,
+      "name": "OathAlreadyCompleted",
+      "msg": "Oath already completed"
+    },
+    {
+      "code": 6011,
+      "name": "OathExpired",
+      "msg": "Oath expired"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidEvidence",
+      "msg": "Invalid evidence"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidLimit",
+      "msg": "Invalid limit"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidOffset",
+      "msg": "Invalid offset"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidAddress",
+      "msg": "Invalid address"
+    }
+  ],
+  "types": [
+    {
+      "name": "CollateralPool",
+      "docs": [
+        "抵押池账户",
+        "用于管理所有抵押资产"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_stable_collateral",
+            "type": "u64"
+          },
+          {
+            "name": "total_token_collateral",
+            "type": "u64"
+          },
+          {
+            "name": "supported_tokens",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CollateralToken",
+      "docs": [
+        "抵押代币结构体",
+        "记录用户在誓言中抵押的各种代币信息"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "address",
+            "type": "string"
+          },
+          {
+            "name": "usd_value",
+            "type": "u64"
+          },
+          {
+            "name": "locked_time",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CompensationInfo",
+      "docs": [
+        "补偿信息结构体",
+        "当系统需要补偿用户时记录相关信息"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "compensation_amount",
+            "type": "u64"
+          },
+          {
+            "name": "compensation_time",
+            "type": "u64"
+          },
+          {
+            "name": "compensated_to",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CompleteOathArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "evidence",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateOathArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "type": "string"
+          },
+          {
+            "name": "category_id",
+            "type": "string"
+          },
+          {
+            "name": "start_time",
+            "type": "u64"
+          },
+          {
+            "name": "end_time",
+            "type": "u64"
+          },
+          {
+            "name": "stable_collateral",
+            "type": "u64"
+          },
+          {
+            "name": "collateral_tokens",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CollateralToken"
+                }
+              }
+            }
+          },
+          {
+            "name": "is_over_collateralized",
+            "type": "bool"
+          },
+          {
+            "name": "token_address",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "target_apy",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GetOathListArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "offset",
+            "type": "u64"
+          },
+          {
+            "name": "limit",
+            "type": "u64"
+          },
+          {
+            "name": "filter_by_creator",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "filter_by_status",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "OathStatus"
+                }
+              }
+            }
+          },
+          {
+            "name": "filter_by_category",
+            "type": {
+              "option": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GlobalState",
+      "docs": [
+        "全局状态账户",
+        "用于管理合约的全局设置和统计信息"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "next_oath_id",
+            "type": "u64"
+          },
+          {
+            "name": "total_oaths",
+            "type": "u64"
+          },
+          {
+            "name": "total_collateral",
+            "type": "u64"
+          },
+          {
+            "name": "is_paused",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Oath",
+      "docs": [
+        "Oath 誓言结构体",
+        "表示用户创建的去中心化誓言，包含承诺内容、抵押信息和执行状态"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "type": "string"
+          },
+          {
+            "name": "category_id",
+            "type": "string"
+          },
+          {
+            "name": "start_time",
+            "type": "u64"
+          },
+          {
+            "name": "end_time",
+            "type": "u64"
+          },
+          {
+            "name": "stable_collateral",
+            "type": "u64"
+          },
+          {
+            "name": "collateral_tokens",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CollateralToken"
+                }
+              }
+            }
+          },
+          {
+            "name": "is_over_collateralized",
+            "type": "bool"
+          },
+          {
+            "name": "token_address",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "target_apy",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "current_apy",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "OathStatus"
+              }
+            }
+          },
+          {
+            "name": "evidence",
+            "type": "string"
+          },
+          {
+            "name": "slashing_info",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "SlashingInfo"
+                }
+              }
+            }
+          },
+          {
+            "name": "compensation_info",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "CompensationInfo"
+                }
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "updated_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OathStatus",
+      "docs": [
+        "誓言状态枚举"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Expired"
+          },
+          {
+            "name": "Failed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SlashOathArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "slashed_percentage",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SlashingInfo",
+      "docs": [
+        "削减信息结构体",
+        "当用户违约时记录惩罚信息"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "slashed_amount",
+            "type": "u64"
+          },
+          {
+            "name": "slashing_time",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}
