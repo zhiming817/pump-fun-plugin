@@ -1,0 +1,83 @@
+/**
+ * Global styles for Pump.fun Pledge Tracker extension
+ * 
+ * This file imports Tailwind CSS utilities for use in our React components.
+ * All styles are scoped within Shadow DOM to prevent conflicts with pump.fun's styles.
+ */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/**
+ * Base reset for Shadow DOM elements
+ * Ensures consistent styling across different contexts
+ */
+:host {
+  all: initial;
+  display: block;
+}
+
+/**
+ * Custom animations for pledge tracker UI
+ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+  }
+}
+
+.pledge-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.pledge-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/**
+ * Custom scrollbar for popup content
+ */
+.pledge-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pledge-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.pledge-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.pledge-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/**
+ * Utility classes for consistent spacing and typography
+ */
+.pledge-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pledge-shadow-lg {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+

@@ -5,3 +5,6 @@ target
 node_modules
 test-ledger
 .yarn
+./plugins/dist
+./plugins/node_modules
+./plugins/.vscode

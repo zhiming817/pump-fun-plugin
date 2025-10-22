@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Pump.fun Pledge Tracker",
+  "version": "1.0.0",
+  "description": "Track pledge status and centralization risk of meme coins on pump.fun",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://pump.fun/*",
+    "https://api.your-backend.com/*"
+  ],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://pump.fun/*"],
+      "js": ["src/content/index.tsx"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["https://pump.fun/*"]
+    }
+  ]
+}
+
