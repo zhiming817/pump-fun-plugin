@@ -21,7 +21,7 @@ import {
   markCardAsInjected,
   findInjectionPoint,
 } from './dom-scanner';
-import { checkOathStatus } from '@/api/08';
+import { checkOathStatus } from '@/api/client';
 import type { MemeCardInfo, MemeData } from '@/types';
 import '@/styles/index.css';
 
