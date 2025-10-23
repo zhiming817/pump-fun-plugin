@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Pump.fun Pledge Tracker",
+  "name": "Pump.fun Oath Tracker",
   "version": "1.0.0",
-  "description": "Track pledge status and centralization risk of meme coins on pump.fun",
+  "description": "Track oath status and centralization risk of meme coins on pump.fun",
   "permissions": [
     "storage"
   ],

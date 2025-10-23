@@ -96,7 +96,7 @@ export function scanMemeCards(): MemeCardInfo[] {
       }
     });
   } catch (error) {
-    console.error('[Pledge Tracker] Error scanning meme cards:', error);
+    console.error('[Oath Tracker] Error scanning meme cards:', error);
   }
 
   return cards;
@@ -151,13 +151,13 @@ function extractMemeId(element: HTMLElement): string | null {
 
     return null;
   } catch (error) {
-    console.error('[Pledge Tracker] Error extracting meme ID:', error);
+    console.error('[Oath Tracker] Error extracting meme ID:', error);
     return null;
   }
 }
 
 /**
- * Mark a meme card as having an injected pledge tag
+ * Mark a meme card as having an injected oath tag
  *
  * @param memeId - The ID of the meme coin
  */
@@ -187,9 +187,9 @@ export function clearCache(): void {
 }
 
 /**
- * Find the optimal injection point for a pledge tag on a meme card
+ * Find the optimal injection point for an oath tag on a meme card
  *
- * This function determines the best place to inject the pledge status tag
+ * This function determines the best place to inject the oath status tag
  * based on the card's structure.
  *
  * @param cardElement - The meme card DOM element

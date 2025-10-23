@@ -8,7 +8,7 @@ export const CONFIG = {
    * API configuration
    */
   api: {
-    endpoint: 'https://api.your-backend.com/v1/memes/check-pledge',
+    endpoint: 'https://api.your-backend.com/v1/memes/check-oath',
     timeout: 10000, // 10 seconds
   },
 
@@ -40,7 +40,7 @@ export const CONFIG = {
    */
   features: {
     enableBanner: true,
-    enablePledgeTags: true,
+    enableOathTags: true,
     enableMutationObserver: true,
   },
 } as const;

@@ -1,5 +1,5 @@
 /**
- * Global styles for Pump.fun Pledge Tracker extension
+ * Global styles for Pump.fun Oath Tracker extension
  * 
  * This file imports Tailwind CSS utilities for use in our React components.
  * All styles are scoped within Shadow DOM to prevent conflicts with pump.fun's styles.
@@ -19,7 +19,7 @@
 }
 
 /**
- * Custom animations for pledge tracker UI
+ * Custom animations for oath tracker UI
  */
 @keyframes fadeIn {
   from {
@@ -41,43 +41,43 @@
   }
 }
 
-.pledge-fade-in {
+.oath-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
 
-.pledge-pulse {
+.oath-pulse {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 /**
  * Custom scrollbar for popup content
  */
-.pledge-scrollbar::-webkit-scrollbar {
+.oath-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
 
-.pledge-scrollbar::-webkit-scrollbar-track {
+.oath-scrollbar::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-.pledge-scrollbar::-webkit-scrollbar-thumb {
+.oath-scrollbar::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 3px;
 }
 
-.pledge-scrollbar::-webkit-scrollbar-thumb:hover {
+.oath-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
 /**
  * Utility classes for consistent spacing and typography
  */
-.pledge-shadow {
+.oath-shadow {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.pledge-shadow-lg {
+.oath-shadow-lg {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 

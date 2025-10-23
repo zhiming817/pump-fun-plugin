@@ -3,7 +3,7 @@
  * Provides consistent logging format and can be easily disabled in production
  */
 
-const PREFIX = '[Pledge Tracker]';
+const PREFIX = '[Oath Tracker]';
 // In browser extensions, we can use import.meta.env for build-time environment variables
 const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
 

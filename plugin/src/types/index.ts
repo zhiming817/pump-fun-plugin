@@ -1,35 +1,35 @@
 /**
- * Type definitions for the Pump.fun Pledge Tracker extension
+ * Type definitions for the Pump.fun Oath Tracker extension
  */
 
 /**
- * Pledge status of a meme coin
+ * Oath status of a meme coin
  */
-export type PledgeStatus = 'PLEDGED' | 'NOT_PLEDGED' | 'UNKNOWN' | 'ERROR';
+export type OathStatus = 'OATHED' | 'NOT_OATHED' | 'UNKNOWN' | 'ERROR';
 
 /**
  * Meme coin data returned from the API
  */
 export interface MemeData {
-  /** Pledge status of the coin */
-  status: PledgeStatus;
-  /** Centralization risk (0-1), only present when status is NOT_PLEDGED */
+  /** Oath status of the coin */
+  status: OathStatus;
+  /** Centralization risk (0-1), only present when status is NOT_OATHED */
   centralizationRisk?: number;
 }
 
 /**
- * API response for batch pledge check
+ * API response for batch oath check
  */
-export interface CheckPledgeResponse {
+export interface CheckOathResponse {
   data: {
     [memeId: string]: MemeData;
   };
 }
 
 /**
- * API request for batch pledge check
+ * API request for batch oath check
  */
-export interface CheckPledgeRequest {
+export interface CheckOathRequest {
   memeIds: string[];
 }
 
@@ -41,7 +41,7 @@ export interface MemeCardInfo {
   id: string;
   /** The DOM element of the meme card */
   element: HTMLElement;
-  /** Whether the pledge tag has been injected */
+  /** Whether the oath tag has been injected */
   hasInjectedTag: boolean;
 }
 
@@ -49,7 +49,7 @@ export interface MemeCardInfo {
  * Configuration for the extension
  */
 export interface ExtensionConfig {
-  /** API endpoint for pledge checking */
+  /** API endpoint for oath checking */
   apiEndpoint: string;
   /** Official website URL */
   officialWebsite: string;
@@ -60,10 +60,10 @@ export interface ExtensionConfig {
 }
 
 /**
- * Props for PledgeTag component
+ * Props for OathTag component
  */
-export interface PledgeTagProps {
-  status: PledgeStatus;
+export interface OathTagProps {
+  status: OathStatus;
   centralizationRisk?: number;
 }
 
