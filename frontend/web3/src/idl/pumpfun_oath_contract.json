@@ -628,38 +628,6 @@
       }
     },
     {
-      "name": "CollateralToken",
-      "docs": [
-        "抵押代币结构体",
-        "记录用户在誓言中抵押的各种代币信息"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "symbol",
-            "type": "string"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "address",
-            "type": "string"
-          },
-          {
-            "name": "usd_value",
-            "type": "u64"
-          },
-          {
-            "name": "locked_time",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
       "name": "CompensationInfo",
       "docs": [
         "补偿信息结构体",
@@ -701,18 +669,6 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "content",
-            "type": "string"
-          },
-          {
-            "name": "category",
-            "type": "string"
-          },
-          {
-            "name": "category_id",
-            "type": "string"
-          },
-          {
             "name": "start_time",
             "type": "u64"
           },
@@ -721,34 +677,16 @@
             "type": "u64"
           },
           {
-            "name": "stable_collateral",
+            "name": "sol_collateral",
             "type": "u64"
           },
           {
-            "name": "collateral_tokens",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "CollateralToken"
-                }
-              }
-            }
-          },
-          {
-            "name": "is_over_collateralized",
-            "type": "bool"
-          },
-          {
             "name": "token_address",
-            "type": {
-              "option": "pubkey"
-            }
+            "type": "pubkey"
           },
           {
-            "name": "target_apy",
-            "type": {
-              "option": "u64"
-            }
+            "name": "target_market_cap",
+            "type": "u64"
           }
         ]
       }
@@ -845,18 +783,6 @@
             "type": "pubkey"
           },
           {
-            "name": "content",
-            "type": "string"
-          },
-          {
-            "name": "category",
-            "type": "string"
-          },
-          {
-            "name": "category_id",
-            "type": "string"
-          },
-          {
             "name": "start_time",
             "type": "u64"
           },
@@ -865,40 +791,16 @@
             "type": "u64"
           },
           {
-            "name": "stable_collateral",
+            "name": "sol_collateral",
             "type": "u64"
           },
           {
-            "name": "collateral_tokens",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "CollateralToken"
-                }
-              }
-            }
-          },
-          {
-            "name": "is_over_collateralized",
-            "type": "bool"
-          },
-          {
             "name": "token_address",
-            "type": {
-              "option": "pubkey"
-            }
+            "type": "pubkey"
           },
           {
-            "name": "target_apy",
-            "type": {
-              "option": "u64"
-            }
-          },
-          {
-            "name": "current_apy",
-            "type": {
-              "option": "u64"
-            }
+            "name": "target_market_cap",
+            "type": "u64"
           },
           {
             "name": "status",

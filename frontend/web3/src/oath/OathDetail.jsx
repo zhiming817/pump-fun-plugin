@@ -81,9 +81,10 @@ export default function OathDetail() {
     }
   };
 
-  const formatCollateral = (amount) => {
-    const value = amount / 1000000;
-    return value.toLocaleString();
+  const formatCollateral = (lamports) => {
+    // 转换 lamports 为 SOL (1 SOL = 10^9 lamports)
+    const value = lamports / 1000000000;
+    return value.toFixed(4);
   };
 
   const formatDate = (timestamp) => {
@@ -184,8 +185,8 @@ export default function OathDetail() {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Hero Section */}
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-8 text-white">
-            <h2 className="text-2xl font-bold mb-4">Commitment</h2>
-            <p className="text-lg leading-relaxed">{oath.content}</p>
+            <h2 className="text-2xl font-bold mb-4">Token Commitment</h2>
+            <p className="text-lg font-mono break-all">{oath.tokenAddress}</p>
           </div>
 
           {/* Details Grid */}
@@ -193,8 +194,8 @@ export default function OathDetail() {
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Category</h3>
-                <p className="text-lg font-medium text-gray-800">📂 {oath.category}</p>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Target Market Cap</h3>
+                <p className="text-lg font-medium text-gray-800">🎯 ${(oath.targetMarketCap / 1000).toFixed(1)}K</p>
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Creator</h3>
@@ -221,32 +222,16 @@ export default function OathDetail() {
 
             {/* Collateral Info */}
             <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">💰 Collateral Information</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">💰 Stake Information</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Stable Collateral:</span>
-                  <span className="font-bold text-purple-600">${formatCollateral(oath.stableCollateral)} USDC</span>
+                  <span className="text-gray-600">SOL Staked:</span>
+                  <span className="font-bold text-purple-600">{formatCollateral(oath.solCollateral)} SOL</span>
                 </div>
-                {oath.isOverCollateralized && (
-                  <div className="flex items-center text-sm text-purple-700">
-                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Over-collateralized
-                  </div>
-                )}
-                {oath.targetApy && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Target APY:</span>
-                    <span className="font-medium text-gray-800">{(oath.targetApy / 100).toFixed(2)}%</span>
-                  </div>
-                )}
-                {oath.currentApy && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Current APY:</span>
-                    <span className="font-medium text-green-600">{(oath.currentApy / 100).toFixed(2)}%</span>
-                  </div>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Target Market Cap:</span>
+                  <span className="font-medium text-gray-800">${oath.targetMarketCap.toLocaleString()}</span>
+                </div>
               </div>
             </div>
 

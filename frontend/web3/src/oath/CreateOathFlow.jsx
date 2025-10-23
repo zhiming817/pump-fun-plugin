@@ -25,16 +25,11 @@ export default function CreateOathFlow() {
   const [isCreating, setIsCreating] = useState(false);
   
   const [formData, setFormData] = useState({
-    content: '',
-    category: 'Creative Projects',
-    categoryId: 'creative',
     startTime: Math.floor(Date.now() / 1000) + 300, // 默认5分钟后开始
-    endTime: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days default
-    stableCollateral: 100,
-    collateralTokens: [],
-    isOverCollateralized: false,
-    tokenAddress: null,
-    targetApy: null
+    endTime: Math.floor(Date.now() / 1000) + 10800, // 默认3小时
+    stableCollateral: 5, // 默认5 SOL
+    tokenAddress: '', // Token地址必填
+    targetApy: 80000 // 默认目标市值 $80,000
   });
 
   const updateFormData = (key, value) => {
@@ -64,13 +59,29 @@ export default function CreateOathFlow() {
     }
 
     // 验证必填字段
-    if (!formData.content.trim()) {
-      alert('Please enter your oath content');
+    if (formData.stableCollateral < 0.1) {
+      alert('Stake amount must be at least 0.1 SOL');
       return;
     }
 
-    if (formData.stableCollateral <= 0) {
-      alert('Collateral amount must be greater than 0');
+    if (!formData.tokenAddress || formData.tokenAddress.trim() === '') {
+      alert('Token address is required');
+      return;
+    }
+
+    // 验证 Token 地址格式
+    try {
+      // 简单验证：应该是 Base58 格式，长度在 32-44 字符之间
+      if (formData.tokenAddress.length < 32 || formData.tokenAddress.length > 44) {
+        throw new Error('Invalid address length');
+      }
+    } catch (error) {
+      alert('Please enter a valid Solana token address');
+      return;
+    }
+
+    if (!formData.targetApy || formData.targetApy < 1000) {
+      alert('Target market cap must be at least $1,000');
       return;
     }
 
@@ -196,25 +207,6 @@ export default function CreateOathFlow() {
 
         {/* Form */}
         <div className="bg-[#1a1a1a] rounded-2xl border border-gray-800 p-8 space-y-6">
-          {/* Oath Content */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Token Address *
-            </label>
-            <textarea
-              placeholder="I will exercise 5 times a week for the next 30 days..."
-              value={formData.content}
-              onChange={(e) => updateFormData('content', e.target.value)}
-              rows={4}
-              className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent resize-none"
-            />
-            <p className="mt-2 text-xs text-gray-500">
-              Be specific and measurable with your commitment
-            </p>
-          </div>
-
-
-
           {/* Time Range */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -247,55 +239,56 @@ export default function CreateOathFlow() {
               Stake Amount (SOL) *
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-3 text-gray-500">$</span>
               <input
                 type="number"
-                min="0"
-                step="1"
+                min="0.1"
+                step="0.1"
                 value={formData.stableCollateral}
                 onChange={(e) => updateFormData('stableCollateral', parseFloat(e.target.value) || 0)}
-                className="w-full pl-8 pr-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
+                className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
               />
             </div>
             <p className="mt-2 text-xs text-gray-500">
-              Amount to stake as commitment. You'll get it back if you complete your oath.
+              Minimum: 0.1 SOL. Your stake will be returned if you reach the target market cap.
             </p>
           </div>
 
-          {/* Over Collateralized Option */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="overCollateralized"
-              checked={formData.isOverCollateralized}
-              onChange={(e) => updateFormData('isOverCollateralized', e.target.checked)}
-              className="w-4 h-4 text-[#4ade80] bg-[#0f0f0f] border-gray-700 rounded focus:ring-[#4ade80]"
-            />
-            <label htmlFor="overCollateralized" className="ml-2 text-sm text-gray-300">
-              Over-collateralized (stake more than the minimum)
-            </label>
-          </div>
-
-          {/* Optional: Target APY */}
+          {/* Token Address */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Target Market Cap
+              Token Address *
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Solana token address"
+              value={formData.tokenAddress}
+              onChange={(e) => updateFormData('tokenAddress', e.target.value)}
+              className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent font-mono text-sm"
+            />
+            <p className="mt-2 text-xs text-gray-500">
+              The Solana token address you want to associate with this oath (e.g., from pump.fun)
+            </p>
+          </div>
+
+          {/* Target Market Cap */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Target Market Cap (USDC) *
             </label>
             <div className="relative">
+              <span className="absolute left-4 top-3 text-gray-500">$</span>
               <input
                 type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                value={formData.targetApy || ''}
-                onChange={(e) => updateFormData('targetApy', e.target.value ? parseFloat(e.target.value) : null)}
-                placeholder="e.g., 12.5"
-                className="w-full pr-10 px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
+                min="1000"
+                step="1000"
+                value={formData.targetApy || 80000}
+                onChange={(e) => updateFormData('targetApy', parseFloat(e.target.value) || 80000)}
+                placeholder="80000"
+                className="w-full pl-8 pr-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
               />
-              <span className="absolute right-4 top-3 text-gray-500">$</span>
             </div>
             <p className="mt-2 text-xs text-gray-500">
-              Expected annual percentage yield if you're staking yield-generating tokens
+              Target market capitalization in USDC (e.g., $80,000)
             </p>
           </div>
 
@@ -306,17 +299,17 @@ export default function CreateOathFlow() {
               <div className="flex justify-between">
                 <span className="text-gray-400">Duration:</span>
                 <span className="font-medium text-gray-200">
-                  {Math.ceil((formData.endTime - formData.startTime) / 86400)} days
+                  {Math.ceil((formData.endTime - formData.startTime) / 3600)} hours
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Collateral:</span>
-                <span className="font-medium text-gray-200">${formData.stableCollateral} USDC</span>
+                <span className="text-gray-400">Stake:</span>
+                <span className="font-medium text-gray-200">{formData.stableCollateral} SOL</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Category:</span>
+                <span className="text-gray-400">Target Market Cap:</span>
                 <span className="font-medium text-gray-200">
-                  {formData.category}
+                  ${(formData.targetApy || 80000).toLocaleString()}
                 </span>
               </div>
             </div>

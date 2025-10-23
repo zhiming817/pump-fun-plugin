@@ -51,53 +51,26 @@ export async function createOath(wallet: any, oathData: any) {
     
     oathPda = deriveOathPDA(nextOathId, programId);
     
-    // 构建抵押代币数组
-    // 如果用户设置了稳定币抵押且 collateralTokens 为空,则创建一个 USDC 条目
-    let collateralTokens = oathData.collateralTokens || [];
-    if (collateralTokens.length === 0 && oathData.stableCollateral > 0) {
-      collateralTokens = [{
-        symbol: 'USDC',
-        amount: Math.round(oathData.stableCollateral * 1000000), // 转换为最小单位
-        address: 'USDC',
-        usdValue: oathData.stableCollateral,
-        lockedTime: oathData.startTime || Math.floor(Date.now() / 1000)
-      }];
-    }
-    
     // 构建参数
     const args = {
-      content: String(oathData.content || ''),
-      category: String(oathData.category || ''),
-      categoryId: String(oathData.categoryId || ''),
       startTime: new BN(oathData.startTime || Math.floor(Date.now() / 1000)),
       endTime: new BN(oathData.endTime || Math.floor(Date.now() / 1000) + 86400 * 30),
-      stableCollateral: new BN(Math.round((oathData.stableCollateral || 0) * 1000000)),
-      collateralTokens: collateralTokens.map((token: any) => ({
-        symbol: String(token.symbol || ''),
-        amount: new BN(Math.round((token.amount || 0))),
-        address: String(token.address || ''),
-        usdValue: new BN(Math.round((token.usdValue || 0) * 1000000)),
-        lockedTime: new BN(token.lockedTime || 0)
-      })),
-      isOverCollateralized: Boolean(oathData.isOverCollateralized || false),
-      tokenAddress: oathData.tokenAddress ? new PublicKey(oathData.tokenAddress) : null,
-      targetApy: oathData.targetApy ? new BN(Math.round(oathData.targetApy * 100)) : null
+      solCollateral: new BN(Math.round((oathData.stableCollateral || 0) * 1000000000)), // 转换为 lamports (1 SOL = 10^9 lamports)
+      tokenAddress: new PublicKey(oathData.tokenAddress), // 必填字段
+      targetMarketCap: new BN(Math.round((oathData.targetApy || 80000))) // 默认目标市值 $80,000
     };
     
     console.log('🔍 Debug args:', {
-      content: args.content,
-      category: args.category,
       startTime: args.startTime.toString(),
       startTimeDate: new Date(args.startTime.toNumber() * 1000).toISOString(),
       endTime: args.endTime.toString(),
       endTimeDate: new Date(args.endTime.toNumber() * 1000).toISOString(),
       currentTime: Math.floor(Date.now() / 1000),
       currentTimeDate: new Date().toISOString(),
-      stableCollateral: args.stableCollateral.toString(),
-      collateralTokens: args.collateralTokens,
-      isOverCollateralized: args.isOverCollateralized,
-      tokenAddress: args.tokenAddress?.toString(),
-      targetApy: args.targetApy?.toString()
+      solCollateral: args.solCollateral.toString(),
+      solCollateralInSOL: (args.solCollateral.toNumber() / 1000000000).toFixed(4),
+      tokenAddress: args.tokenAddress.toString(), // 必填，不再是 optional
+      targetMarketCap: args.targetMarketCap.toString()
     });
     
     // 先检查 Oath 账户是否已存在

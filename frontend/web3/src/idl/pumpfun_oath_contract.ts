@@ -634,38 +634,6 @@ export type PumpfunOathContract = {
       }
     },
     {
-      "name": "collateralToken",
-      "docs": [
-        "抵押代币结构体",
-        "记录用户在誓言中抵押的各种代币信息"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "symbol",
-            "type": "string"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "address",
-            "type": "string"
-          },
-          {
-            "name": "usdValue",
-            "type": "u64"
-          },
-          {
-            "name": "lockedTime",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
       "name": "compensationInfo",
       "docs": [
         "补偿信息结构体",
@@ -707,18 +675,6 @@ export type PumpfunOathContract = {
         "kind": "struct",
         "fields": [
           {
-            "name": "content",
-            "type": "string"
-          },
-          {
-            "name": "category",
-            "type": "string"
-          },
-          {
-            "name": "categoryId",
-            "type": "string"
-          },
-          {
             "name": "startTime",
             "type": "u64"
           },
@@ -727,34 +683,16 @@ export type PumpfunOathContract = {
             "type": "u64"
           },
           {
-            "name": "stableCollateral",
+            "name": "solCollateral",
             "type": "u64"
           },
           {
-            "name": "collateralTokens",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "collateralToken"
-                }
-              }
-            }
-          },
-          {
-            "name": "isOverCollateralized",
-            "type": "bool"
-          },
-          {
             "name": "tokenAddress",
-            "type": {
-              "option": "pubkey"
-            }
+            "type": "pubkey"
           },
           {
-            "name": "targetApy",
-            "type": {
-              "option": "u64"
-            }
+            "name": "targetMarketCap",
+            "type": "u64"
           }
         ]
       }
@@ -851,18 +789,6 @@ export type PumpfunOathContract = {
             "type": "pubkey"
           },
           {
-            "name": "content",
-            "type": "string"
-          },
-          {
-            "name": "category",
-            "type": "string"
-          },
-          {
-            "name": "categoryId",
-            "type": "string"
-          },
-          {
             "name": "startTime",
             "type": "u64"
           },
@@ -871,40 +797,16 @@ export type PumpfunOathContract = {
             "type": "u64"
           },
           {
-            "name": "stableCollateral",
+            "name": "solCollateral",
             "type": "u64"
           },
           {
-            "name": "collateralTokens",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "collateralToken"
-                }
-              }
-            }
-          },
-          {
-            "name": "isOverCollateralized",
-            "type": "bool"
-          },
-          {
             "name": "tokenAddress",
-            "type": {
-              "option": "pubkey"
-            }
+            "type": "pubkey"
           },
           {
-            "name": "targetApy",
-            "type": {
-              "option": "u64"
-            }
-          },
-          {
-            "name": "currentApy",
-            "type": {
-              "option": "u64"
-            }
+            "name": "targetMarketCap",
+            "type": "u64"
           },
           {
             "name": "status",
