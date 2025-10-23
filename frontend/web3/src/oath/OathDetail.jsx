@@ -35,11 +35,22 @@ export default function OathDetail() {
         setOath(result.oath);
         console.log('Loaded oath:', result.oath);
       } else {
-        setError(result.error || 'Failed to load oath');
+        // Provide more specific error messages
+        if (result.error?.includes('does not exist')) {
+          setError(`Oath #${oathId} does not exist. It may not have been created yet.`);
+        } else if (result.error?.includes('Failed to decode')) {
+          setError(`Oath #${oathId} exists but has corrupted data. Please contact support.`);
+        } else {
+          setError(result.error || 'Failed to load oath');
+        }
       }
     } catch (err) {
       console.error('Error loading oath:', err);
-      setError(err.message || 'Failed to load oath');
+      if (err.message?.includes('does not exist')) {
+        setError(`Oath #${oathId} does not exist. It may not have been created yet.`);
+      } else {
+        setError(err.message || 'Failed to load oath');
+      }
     } finally {
       setLoading(false);
     }

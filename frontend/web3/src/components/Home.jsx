@@ -33,13 +33,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
+    <div className="h-screen bg-[#0a0a0a] flex flex-col overflow-hidden">
       <Navbar />
-      
+
       {/* Carousel Container */}
       <div className="flex-1 relative overflow-hidden">
         {/* Slides */}
-        <div 
+        <div
           className="h-full flex transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
@@ -69,11 +69,10 @@ export default function Home() {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`h-2 rounded-full transition-all ${
-                  index === currentSlide 
-                    ? 'w-8 bg-emerald-500' 
-                    : 'w-2 bg-gray-600 hover:bg-gray-500'
-                }`}
+                className={`h-2 rounded-full transition-all ${index === currentSlide
+                  ? 'w-8 bg-emerald-500'
+                  : 'w-2 bg-gray-600 hover:bg-gray-500'
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
@@ -131,20 +130,20 @@ function HeroSlide() {
 // Slide 2: Market Gap
 function MarketGapSlide() {
   return (
-    <div className="h-full flex items-center justify-center px-4 py-12">
-      <div className="max-w-6xl w-full">
-        <div className="mb-12">
-          <h2 className="text-5xl font-bold text-white mb-4">The Market Gap</h2>
-          <p className="text-xl text-gray-400">
+    <div className="h-full flex items-center justify-center px-4 py-4">
+      <div className="max-w-5xl w-full">
+        <div className="mb-6 text-center">
+          <h2 className="text-3xl font-bold text-white mb-2">The Market Gap</h2>
+          <p className="text-base text-gray-400">
             Existing solutions tell you about risk. We eliminate it.
           </p>
         </div>
 
         {/* Comparison Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           {/* GMGN.ai Card */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-            <div className="flex items-start gap-3 mb-4">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
+            <div className="flex items-start gap-3 mb-3">
               <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
                 <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
@@ -155,7 +154,7 @@ function MarketGapSlide() {
                 <p className="text-sm text-gray-400">On-chain Intelligence Platform</p>
               </div>
             </div>
-            <p className="text-gray-300 mb-4">
+            <p className="text-gray-300 mb-3 text-sm">
               Tracks smart money wallets and provides alpha signals. Shows you what to hunt.
             </p>
             <div className="flex items-start gap-2 text-sm text-red-400">
@@ -165,8 +164,8 @@ function MarketGapSlide() {
           </div>
 
           {/* Photon / BullX Card */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
-            <div className="flex items-start gap-3 mb-4">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
+            <div className="flex items-start gap-3 mb-3">
               <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
                 <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -177,7 +176,7 @@ function MarketGapSlide() {
                 <p className="text-sm text-gray-400">High-Speed Trading Bots</p>
               </div>
             </div>
-            <p className="text-gray-300 mb-4">
+            <p className="text-gray-300 mb-3 text-sm">
               Snipe tokens at launch with maximum speed. Helps you react faster.
             </p>
             <div className="flex items-start gap-2 text-sm text-red-400">
@@ -188,44 +187,44 @@ function MarketGapSlide() {
         </div>
 
         {/* AntiDump Advantage */}
-        <div className="bg-gradient-to-br from-emerald-900/30 to-green-900/30 border border-emerald-500/30 rounded-2xl p-8">
-          <div className="flex items-start gap-4 mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl font-bold text-white">Ø</span>
+        <div className="bg-gradient-to-br from-emerald-900/30 to-green-900/30 border border-emerald-500/30 rounded-xl p-4">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+              <span className="text-xl font-bold text-white">Ø</span>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-white mb-2">AntiDump Advantage</h3>
-              <p className="text-gray-300">
+              <h3 className="text-lg font-bold text-white mb-1">AntiDump Advantage</h3>
+              <p className="text-gray-300 text-xs">
                 We don't just identify risk—we architect safety into the protocol itself
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-2">
+              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
                 <span>✓</span>
-                <span>Structural Safety</span>
+                <span class="text-sm">Structural Safety</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-xs text-gray-400">
                 Built-in creator commitment mechanisms
               </p>
             </div>
             <div>
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-2">
+              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
                 <span>✓</span>
-                <span>Capital Protection</span>
+                <span class="text-sm">Capital Protection</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-xs text-gray-400">
                 Failed stakes redirect to graduated tokens
               </p>
             </div>
             <div>
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-2">
+              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
                 <span>✓</span>
-                <span>Trust by Design</span>
+                <span class="text-sm">Trust by Design</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-xs text-gray-400">
                 Creators prove commitment before launch
               </p>
             </div>
@@ -239,19 +238,19 @@ function MarketGapSlide() {
 // Slide 3: How It Works
 function HowItWorksSlide() {
   return (
-    <div className="h-full flex items-center justify-center px-4 py-12">
-      <div className="max-w-6xl w-full">
-        <div className="mb-12">
-          <h2 className="text-5xl font-bold text-white mb-4">How It Works</h2>
-          <p className="text-xl text-gray-400">
+    <div className="h-full flex items-center justify-center px-4 py-4">
+      <div className="max-w-5xl w-full">
+        <div className="mb-6 text-center">
+          <h2 className="text-3xl font-bold text-white mb-2">How It Works</h2>
+          <p className="text-base text-gray-400">
             A simple, enforceable commitment protocol
           </p>
         </div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           {/* Step 1 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                 <span className="text-xl font-bold text-white">1</span>
@@ -271,7 +270,7 @@ function HowItWorksSlide() {
           </div>
 
           {/* Step 2 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                 <span className="text-xl font-bold text-white">2</span>
@@ -291,7 +290,7 @@ function HowItWorksSlide() {
           </div>
 
           {/* Step 3 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                 <span className="text-xl font-bold text-white">3</span>
@@ -311,7 +310,7 @@ function HowItWorksSlide() {
           </div>
 
           {/* Step 4 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-6">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                 <span className="text-xl font-bold text-white">4</span>
@@ -332,10 +331,10 @@ function HowItWorksSlide() {
         </div>
 
         {/* Economic Flywheel */}
-        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border border-gray-700 rounded-2xl p-8">
-          <h3 className="text-2xl font-bold text-white mb-3">The Economic Flywheel</h3>
-          <p className="text-gray-300">
-            Serious creators prove commitment through stakes. Failed projects fund successful ones. Top holders are rewarded. 
+        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border border-gray-700 rounded-xl p-4">
+          <h3 className="text-lg font-bold text-white mb-2">The Economic Flywheel</h3>
+          <p className="text-gray-300 text-sm">
+            Serious creators prove commitment through stakes. Failed projects fund successful ones. Top holders are rewarded.
             The protocol captures sustainable revenue. Everyone wins except rug pullers.
           </p>
         </div>

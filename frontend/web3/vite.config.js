@@ -15,7 +15,10 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       '@solana/web3.js',
-      '@coral-xyz/anchor'
+      '@coral-xyz/anchor',
+      'bn.js',
+      'elliptic',
+      'buffer'
     ],
     exclude: [
       'rpc-websockets/dist/lib/client',
@@ -26,12 +29,19 @@ export default defineConfig({
     // 为浏览器环境提供 process.env 的兼容
     'process.env': {},
     'process.argv': [],
+    global: 'globalThis',
   },
   resolve: {
     alias: {
       // 如果需要的话可以添加路径别号
       '@': '/src',
+      buffer: 'buffer',
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
   },
+  server: {
+    fs: {
+      allow: ['..']
+    }
+  }
 })

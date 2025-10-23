@@ -12,7 +12,19 @@ export async function getOath(oathId: number, wallet: any = null) {
     const programId = new PublicKey(OATH_CONTRACT_CONFIG.PROGRAM_ID);
     const oathPda = deriveOathPDA(oathId, programId);
     
-    const oathAccount = await (program.account as any).oath.fetch(oathPda);
+    // First check if the account exists
+    const accountInfo = await program.provider.connection.getAccountInfo(oathPda);
+    if (!accountInfo || !accountInfo.data) {
+      throw new Error(`Oath account ${oathId} does not exist`);
+    }
+    
+    let oathAccount;
+    try {
+      oathAccount = await (program.account as any).oath.fetch(oathPda);
+    } catch (decodeError: any) {
+      console.error('Error decoding oath account:', decodeError);
+      throw new Error(`Failed to decode oath account ${oathId}: ${decodeError.message}`);
+    }
     
     const oath = {
       id: oathAccount.id.toNumber(),
