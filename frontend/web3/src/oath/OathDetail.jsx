@@ -92,9 +92,10 @@ export default function OathDetail() {
     }
   };
 
-  const formatCollateral = (amount) => {
-    const value = amount / 1000000;
-    return value.toLocaleString();
+  const formatCollateral = (lamports) => {
+    // 转换 lamports 为 SOL (1 SOL = 10^9 lamports)
+    const value = lamports / 1000000000;
+    return value.toFixed(4);
   };
 
   const formatDate = (timestamp) => {
@@ -114,12 +115,12 @@ export default function OathDetail() {
   const getStatusColor = (status) => {
     const statusKey = Object.keys(status)[0];
     const colorMap = {
-      active: 'text-blue-600 bg-blue-100',
-      completed: 'text-green-600 bg-green-100',
-      expired: 'text-gray-600 bg-gray-100',
-      failed: 'text-red-600 bg-red-100'
+      active: 'text-blue-400 bg-blue-500/20',
+      completed: 'text-green-400 bg-green-500/20',
+      expired: 'text-gray-400 bg-gray-500/20',
+      failed: 'text-red-400 bg-red-500/20'
     };
-    return colorMap[statusKey] || 'text-gray-600 bg-gray-100';
+    return colorMap[statusKey] || 'text-gray-400 bg-gray-500/20';
   };
 
   const isCreator = () => {
@@ -134,12 +135,12 @@ export default function OathDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <Navbar />
         <div className="flex items-center justify-center" style={{minHeight: 'calc(100vh - 64px)'}}>
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-            <p className="text-gray-600">Loading oath details...</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#4ade80] mb-4"></div>
+            <p className="text-gray-400">Loading oath details...</p>
           </div>
         </div>
       </div>
@@ -148,16 +149,16 @@ export default function OathDetail() {
 
   if (error || !oath) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+          <div className="bg-[#1a1a1a] border border-red-800 rounded-lg p-8 text-center">
             <div className="text-6xl mb-4">⚠️</div>
-            <h3 className="text-2xl font-semibold text-red-800 mb-2">Error</h3>
-            <p className="text-red-600 mb-6">{error || 'Oath not found'}</p>
+            <h3 className="text-2xl font-semibold text-red-400 mb-2">Error</h3>
+            <p className="text-red-300 mb-6">{error || 'Oath not found'}</p>
             <button
               onClick={() => navigate('/oaths')}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="px-6 py-3 bg-[#4ade80] text-black rounded-lg hover:bg-[#22c55e] font-medium transition-colors"
             >
               Back to Oaths
             </button>
@@ -168,14 +169,14 @@ export default function OathDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => navigate('/oaths')}
-            className="flex items-center text-purple-600 hover:text-purple-700 mb-4"
+            className="flex items-center text-[#4ade80] hover:text-[#22c55e] mb-4 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -184,7 +185,7 @@ export default function OathDetail() {
           </button>
           
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-800">Oath #{oath.id}</h1>
+            <h1 className="text-3xl font-bold text-white">Oath #{oath.id}</h1>
             <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(oath.status)}`}>
               {getStatusLabel(oath.status)}
             </span>
@@ -192,11 +193,11 @@ export default function OathDetail() {
         </div>
 
         {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl shadow-lg overflow-hidden">
           {/* Hero Section */}
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-8 text-white">
-            <h2 className="text-2xl font-bold mb-4">Commitment</h2>
-            <p className="text-lg leading-relaxed">{oath.content}</p>
+          <div className="bg-gradient-to-r from-[#4ade80] to-[#22c55e] p-8">
+            <h2 className="text-2xl font-bold mb-4 text-black">Token Commitment</h2>
+            <p className="text-lg font-mono break-all text-black/90">{oath.tokenAddress}</p>
           </div>
 
           {/* Details Grid */}
@@ -204,15 +205,15 @@ export default function OathDetail() {
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Category</h3>
-                <p className="text-lg font-medium text-gray-800">📂 {oath.category}</p>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">Target Market Cap</h3>
+                <p className="text-lg font-medium text-white">🎯 ${(oath.targetMarketCap / 1000).toFixed(1)}K</p>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Creator</h3>
-                <p className="text-lg font-mono text-gray-800 break-all">
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">Creator</h3>
+                <p className="text-sm font-mono text-gray-300 break-all">
                   {oath.creator}
                   {isCreator() && (
-                    <span className="ml-2 text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded">You</span>
+                    <span className="ml-2 text-xs bg-[#4ade80]/20 text-[#4ade80] px-2 py-1 rounded">You</span>
                   )}
                 </p>
               </div>
@@ -221,95 +222,79 @@ export default function OathDetail() {
             {/* Time Range */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Start Date</h3>
-                <p className="text-lg font-medium text-gray-800">📅 {formatDate(oath.startTime)}</p>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">Start Date</h3>
+                <p className="text-lg font-medium text-white">📅 {formatDate(oath.startTime)}</p>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">End Date</h3>
-                <p className="text-lg font-medium text-gray-800">🏁 {formatDate(oath.endTime)}</p>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">End Date</h3>
+                <p className="text-lg font-medium text-white">🏁 {formatDate(oath.endTime)}</p>
               </div>
             </div>
 
             {/* Collateral Info */}
-            <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">💰 Collateral Information</h3>
+            <div className="bg-[#0f0f0f] border border-gray-800 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">💰 Stake Information</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Stable Collateral:</span>
-                  <span className="font-bold text-purple-600">${formatCollateral(oath.stableCollateral)} USDC</span>
+                  <span className="text-gray-400">SOL Staked:</span>
+                  <span className="font-bold text-[#4ade80]">{formatCollateral(oath.solCollateral)} SOL</span>
                 </div>
-                {oath.isOverCollateralized && (
-                  <div className="flex items-center text-sm text-purple-700">
-                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Over-collateralized
-                  </div>
-                )}
-                {oath.targetApy && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Target APY:</span>
-                    <span className="font-medium text-gray-800">{(oath.targetApy / 100).toFixed(2)}%</span>
-                  </div>
-                )}
-                {oath.currentApy && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Current APY:</span>
-                    <span className="font-medium text-green-600">{(oath.currentApy / 100).toFixed(2)}%</span>
-                  </div>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Target Market Cap:</span>
+                  <span className="font-medium text-white">${oath.targetMarketCap.toLocaleString()}</span>
+                </div>
               </div>
             </div>
 
             {/* Evidence */}
             {oath.evidence && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">📝 Evidence of Completion</h3>
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <p className="text-gray-700 whitespace-pre-wrap">{oath.evidence}</p>
+                <h3 className="text-lg font-semibold text-white mb-3">📝 Evidence of Completion</h3>
+                <div className="bg-[#0f0f0f] border border-green-800 rounded-xl p-4">
+                  <p className="text-gray-300 whitespace-pre-wrap">{oath.evidence}</p>
                 </div>
               </div>
             )}
 
             {/* Slashing Info */}
             {oath.slashingInfo && (
-              <div className="bg-red-50 rounded-lg p-6 border border-red-200">
-                <h3 className="text-lg font-semibold text-red-800 mb-3">⚠️ Slashing Information</h3>
+              <div className="bg-[#0f0f0f] border border-red-800 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-red-400 mb-3">⚠️ Slashing Information</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-red-600">Slashed Amount:</span>
-                    <span className="font-bold">${formatCollateral(oath.slashingInfo.slashedAmount)}</span>
+                    <span className="text-red-400">Slashed Amount:</span>
+                    <span className="font-bold text-white">{formatCollateral(oath.slashingInfo.slashedAmount)} SOL</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-red-600">Slashing Time:</span>
-                    <span>{formatDate(oath.slashingInfo.slashingTime)}</span>
+                    <span className="text-red-400">Slashing Time:</span>
+                    <span className="text-gray-300">{formatDate(oath.slashingInfo.slashingTime)}</span>
                   </div>
                   <div className="mt-3">
-                    <span className="text-red-600 font-medium">Reason:</span>
-                    <p className="mt-1 text-red-700">{oath.slashingInfo.reason}</p>
+                    <span className="text-red-400 font-medium">Reason:</span>
+                    <p className="mt-1 text-red-300">{oath.slashingInfo.reason}</p>
                   </div>
                 </div>
               </div>
             )}
 
             {/* Metadata */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-800">
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Created At</h3>
-                <p className="text-gray-700">{formatDate(oath.createdAt)}</p>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">Created At</h3>
+                <p className="text-gray-300">{formatDate(oath.createdAt)}</p>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Last Updated</h3>
-                <p className="text-gray-700">{formatDate(oath.updatedAt)}</p>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">Last Updated</h3>
+                <p className="text-gray-300">{formatDate(oath.updatedAt)}</p>
               </div>
             </div>
 
             {/* Action Buttons */}
             {canComplete() && (
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-gray-800">
                 <button
                   onClick={() => setShowCompleteModal(true)}
-                  className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
+                  className="w-full px-6 py-3 bg-[#4ade80] text-black rounded-lg hover:bg-[#22c55e] font-medium transition-colors"
                 >
                   ✅ Complete Oath
                 </button>
@@ -319,20 +304,20 @@ export default function OathDetail() {
         </div>
 
         {/* Contract Address */}
-        <div className="mt-4 bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-600">
+        <div className="mt-4 bg-[#1a1a1a] border border-gray-800 rounded-lg p-4">
+          <div className="text-sm text-gray-400">
             <span className="font-medium">Contract Address:</span>
-            <span className="ml-2 font-mono text-xs break-all">{oath.address}</span>
+            <span className="ml-2 font-mono text-xs break-all text-gray-500">{oath.address}</span>
           </div>
         </div>
       </div>
 
       {/* Complete Oath Modal */}
       {showCompleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Complete Oath</h3>
-            <p className="text-gray-600 mb-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Complete Oath</h3>
+            <p className="text-gray-400 mb-4">
               Provide evidence that you've completed your oath. This will be recorded on-chain.
             </p>
             <textarea
@@ -340,7 +325,7 @@ export default function OathDetail() {
               value={evidence}
               onChange={(e) => setEvidence(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 mb-4"
+              className="w-full px-3 py-2 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent mb-4"
             />
             <div className="flex gap-3">
               <button
@@ -349,14 +334,14 @@ export default function OathDetail() {
                   setEvidence('');
                 }}
                 disabled={isCompleting}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                className="flex-1 px-4 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-[#0f0f0f] disabled:opacity-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCompleteOath}
                 disabled={isCompleting || !evidence.trim()}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-[#4ade80] text-black rounded-lg hover:bg-[#22c55e] disabled:bg-gray-600 disabled:cursor-not-allowed font-medium transition-colors"
               >
                 {isCompleting ? 'Completing...' : 'Submit'}
               </button>

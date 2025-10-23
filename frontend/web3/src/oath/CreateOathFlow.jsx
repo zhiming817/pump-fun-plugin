@@ -25,16 +25,11 @@ export default function CreateOathFlow() {
   const [isCreating, setIsCreating] = useState(false);
   
   const [formData, setFormData] = useState({
-    content: '',
-    category: '',
-    categoryId: '',
     startTime: Math.floor(Date.now() / 1000) + 300, // 默认5分钟后开始
-    endTime: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days default
-    stableCollateral: 100,
-    collateralTokens: [],
-    isOverCollateralized: false,
-    tokenAddress: null,
-    targetApy: null
+    endTime: Math.floor(Date.now() / 1000) + 10800, // 默认3小时
+    stableCollateral: 5, // 默认5 SOL
+    tokenAddress: '', // Token地址必填
+    targetApy: 80000 // 默认目标市值 $80,000
   });
 
   const updateFormData = (key, value) => {
@@ -64,18 +59,29 @@ export default function CreateOathFlow() {
     }
 
     // 验证必填字段
-    if (!formData.content.trim()) {
-      alert('Please enter your oath content');
+    if (formData.stableCollateral < 0.1) {
+      alert('Stake amount must be at least 0.1 SOL');
       return;
     }
 
-    if (!formData.categoryId) {
-      alert('Please select a category');
+    if (!formData.tokenAddress || formData.tokenAddress.trim() === '') {
+      alert('Token address is required');
       return;
     }
 
-    if (formData.stableCollateral <= 0) {
-      alert('Collateral amount must be greater than 0');
+    // 验证 Token 地址格式
+    try {
+      // 简单验证：应该是 Base58 格式，长度在 32-44 字符之间
+      if (formData.tokenAddress.length < 32 || formData.tokenAddress.length > 44) {
+        throw new Error('Invalid address length');
+      }
+    } catch (error) {
+      alert('Please enter a valid Solana token address');
+      return;
+    }
+
+    if (!formData.targetApy || formData.targetApy < 1000) {
+      alert('Target market cap must be at least $1,000');
       return;
     }
 
@@ -144,181 +150,166 @@ export default function CreateOathFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 flex flex-col">
+    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
       <Navbar />
-      <div className="flex-1 max-w-4xl mx-auto px-4 py-8">
+      <div className="flex-1 max-w-5xl mx-auto px-4 py-12">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center">
-              <button
-                onClick={() => navigate('/oaths')}
-                className="mr-3 p-2 hover:bg-white rounded-lg transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </button>
-              🤝 Create New Oath
-            </h1>
-            {!connected && (
-              <button
-                onClick={() => setVisible(true)}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-              >
-                Connect Wallet
-              </button>
-            )}
-          </div>
-          <p className="text-gray-600 ml-14">
-            Make a commitment and stake collateral to keep yourself accountable
+        <div className="mb-12 text-center">
+          <h1 className="text-5xl font-bold text-white mb-6">
+            Launch Your Oath
+          </h1>
+          <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+            Commit to your project's success. Stake SOL and prove your dedication to the community.
           </p>
         </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
-          {/* Oath Content */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Your Oath / Commitment *
-            </label>
-            <textarea
-              placeholder="I will exercise 5 times a week for the next 30 days..."
-              value={formData.content}
-              onChange={(e) => updateFormData('content', e.target.value)}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Be specific and measurable with your commitment
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* Build Trust Card */}
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-8">
+            <div className="w-12 h-12 mb-6 text-[#4ade80]">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">Build Trust</h3>
+            <p className="text-gray-400 leading-relaxed">
+              Show your commitment by staking SOL. Your oath proves you're here for the long term.
             </p>
           </div>
 
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Category *
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {CATEGORY_OPTIONS.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategorySelect(category.id)}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    formData.categoryId === category.id
-                      ? 'border-purple-500 bg-purple-50'
-                      : 'border-gray-200 hover:border-purple-300'
-                  }`}
-                >
-                  <div className="text-2xl mb-1">{category.icon}</div>
-                  <div className="text-xs font-medium text-gray-700">{category.name}</div>
-                </button>
-              ))}
+          {/* Time-Bound Card */}
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-8">
+            <div className="w-12 h-12 mb-6 text-[#4ade80]">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
+            <h3 className="text-xl font-bold text-white mb-4">Time-Bound</h3>
+            <p className="text-gray-400 leading-relaxed">
+              Choose your graduation timeline. Reach $80K market cap within your chosen timeframe.
+            </p>
           </div>
 
+          {/* Win Together Card */}
+          <div className="bg-[#1a1a1a] border border-gray-800 rounded-2xl p-8">
+            <div className="w-12 h-12 mb-6 text-[#4ade80]">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">Win Together</h3>
+            <p className="text-gray-400 leading-relaxed">
+              Succeed and keep your stake. Fail and your stake rewards successful projects in your group.
+            </p>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="bg-[#1a1a1a] rounded-2xl border border-gray-800 p-8 space-y-6">
           {/* Time Range */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Start Date *
               </label>
               <input
                 type="datetime-local"
                 value={formatDateForInput(formData.startTime)}
                 onChange={(e) => handleDateChange('startTime', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 End Date *
               </label>
               <input
                 type="datetime-local"
                 value={formatDateForInput(formData.endTime)}
                 onChange={(e) => handleDateChange('endTime', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
               />
             </div>
           </div>
 
           {/* Collateral */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Collateral Amount (USDC) *
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Stake Amount (SOL) *
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-gray-500">$</span>
               <input
                 type="number"
-                min="0"
-                step="1"
+                min="0.1"
+                step="0.1"
                 value={formData.stableCollateral}
                 onChange={(e) => updateFormData('stableCollateral', parseFloat(e.target.value) || 0)}
-                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
               />
             </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Amount to stake as commitment. You'll get it back if you complete your oath.
+            <p className="mt-2 text-xs text-gray-500">
+              Minimum: 0.1 SOL. Your stake will be returned if you reach the target market cap.
             </p>
           </div>
 
-          {/* Over Collateralized Option */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="overCollateralized"
-              checked={formData.isOverCollateralized}
-              onChange={(e) => updateFormData('isOverCollateralized', e.target.checked)}
-              className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-            />
-            <label htmlFor="overCollateralized" className="ml-2 text-sm text-gray-700">
-              Over-collateralized (stake more than the minimum)
+          {/* Token Address */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Token Address *
             </label>
+            <input
+              type="text"
+              placeholder="Enter Solana token address"
+              value={formData.tokenAddress}
+              onChange={(e) => updateFormData('tokenAddress', e.target.value)}
+              className="w-full px-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent font-mono text-sm"
+            />
+            <p className="mt-2 text-xs text-gray-500">
+              The Solana token address you want to associate with this oath (e.g., from pump.fun)
+            </p>
           </div>
 
-          {/* Optional: Target APY */}
+          {/* Target Market Cap */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Target APY (Optional)
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Target Market Cap (USDC) *
             </label>
             <div className="relative">
+              <span className="absolute left-4 top-3 text-gray-500">$</span>
               <input
                 type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                value={formData.targetApy || ''}
-                onChange={(e) => updateFormData('targetApy', e.target.value ? parseFloat(e.target.value) : null)}
-                placeholder="e.g., 12.5"
-                className="w-full pr-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                min="1000"
+                step="1000"
+                value={formData.targetApy || 80000}
+                onChange={(e) => updateFormData('targetApy', parseFloat(e.target.value) || 80000)}
+                placeholder="80000"
+                className="w-full pl-8 pr-4 py-3 bg-[#0f0f0f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent"
               />
-              <span className="absolute right-3 top-2 text-gray-500">%</span>
             </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Expected annual percentage yield if you're staking yield-generating tokens
+            <p className="mt-2 text-xs text-gray-500">
+              Target market capitalization in USDC (e.g., $80,000)
             </p>
           </div>
 
           {/* Summary */}
-          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-            <h3 className="font-semibold text-gray-800 mb-3">Summary</h3>
+          <div className="bg-[#0f0f0f] border border-gray-800 rounded-xl p-6">
+            <h3 className="font-semibold text-white mb-3">Summary</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Duration:</span>
-                <span className="font-medium">
-                  {Math.ceil((formData.endTime - formData.startTime) / 86400)} days
+                <span className="text-gray-400">Duration:</span>
+                <span className="font-medium text-gray-200">
+                  {Math.ceil((formData.endTime - formData.startTime) / 3600)} hours
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Collateral:</span>
-                <span className="font-medium">${formData.stableCollateral} USDC</span>
+                <span className="text-gray-400">Stake:</span>
+                <span className="font-medium text-gray-200">{formData.stableCollateral} SOL</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Category:</span>
-                <span className="font-medium">
-                  {formData.categoryId ? CATEGORY_OPTIONS.find(c => c.id === formData.categoryId)?.name : 'Not selected'}
+                <span className="text-gray-400">Target Market Cap:</span>
+                <span className="font-medium text-gray-200">
+                  ${(formData.targetApy || 80000).toLocaleString()}
                 </span>
               </div>
             </div>
@@ -328,18 +319,18 @@ export default function CreateOathFlow() {
           <div className="flex gap-4 pt-4">
             <button
               onClick={() => navigate('/oaths')}
-              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+              className="flex-1 px-6 py-3 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 font-medium transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleCreateOath}
               disabled={isCreating || !connected}
-              className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-3 bg-[#4ade80] text-black rounded-lg hover:bg-[#3dca6e] font-medium transition-colors disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
             >
               {isCreating ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -353,9 +344,9 @@ export default function CreateOathFlow() {
         </div>
 
         {/* Info Box */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-semibold text-blue-800 mb-2">💡 How it works</h4>
-          <ul className="text-sm text-blue-700 space-y-1">
+        <div className="mt-6 bg-[#1a1a1a] border border-gray-800 rounded-xl p-6">
+          <h4 className="font-semibold text-white mb-3">💡 How it works</h4>
+          <ul className="text-sm text-gray-400 space-y-2">
             <li>• Stake collateral to commit to your goal</li>
             <li>• Complete your oath before the deadline</li>
             <li>• Provide evidence of completion to get your collateral back</li>

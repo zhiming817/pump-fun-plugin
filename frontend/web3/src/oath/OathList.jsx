@@ -47,10 +47,10 @@ export default function OathList() {
     navigate(`/oaths/${oathId}`);
   };
 
-  const formatCollateral = (amount) => {
-    // 假设是 6 位小数 (USDC/USDT)
-    const value = amount / 1000000;
-    return value.toLocaleString();
+  const formatCollateral = (lamports) => {
+    // 转换 lamports 为 SOL (1 SOL = 10^9 lamports)
+    const value = lamports / 1000000000;
+    return value.toFixed(4);
   };
 
   const formatDate = (timestamp) => {
@@ -196,21 +196,21 @@ export default function OathList() {
                       {getStatusLabel(oath.status)}
                     </span>
                   </div>
-                  <h3 className="text-white font-bold text-lg line-clamp-2">
-                    {oath.content}
+                  <h3 className="text-white font-bold text-lg">
+                    Token: {oath.tokenAddress.substring(0, 8)}...
                   </h3>
                 </div>
 
                 {/* Card Body */}
                 <div className="p-4 space-y-3">
                   <div className="flex items-center text-sm text-gray-300">
-                    <span className="mr-2">📂</span>
-                    <span>{oath.category}</span>
+                    <span className="mr-2">🎯</span>
+                    <span>Target: ${(oath.targetMarketCap / 1000).toFixed(1)}K</span>
                   </div>
                   
                   <div className="flex items-center text-sm text-gray-300">
                     <span className="mr-2">💰</span>
-                    <span>${formatCollateral(oath.stableCollateral)} Collateral</span>
+                    <span>{formatCollateral(oath.solCollateral)} SOL Staked</span>
                   </div>
                   
                   <div className="flex items-center text-sm text-gray-300">

@@ -29,23 +29,11 @@ export async function getOath(oathId: number, wallet: any = null) {
     const oath = {
       id: oathAccount.id.toNumber(),
       creator: oathAccount.creator.toString(),
-      content: oathAccount.content,
-      category: oathAccount.category,
-      categoryId: oathAccount.categoryId,
       startTime: oathAccount.startTime.toNumber(),
       endTime: oathAccount.endTime.toNumber(),
-      stableCollateral: oathAccount.stableCollateral.toNumber(),
-      collateralTokens: oathAccount.collateralTokens.map((token: any) => ({
-        symbol: token.symbol,
-        amount: token.amount.toNumber(),
-        address: token.address,
-        usdValue: token.usdValue.toNumber(),
-        lockedTime: token.lockedTime.toNumber()
-      })),
-      isOverCollateralized: oathAccount.isOverCollateralized,
-      tokenAddress: oathAccount.tokenAddress?.toString(),
-      targetApy: oathAccount.targetApy ? oathAccount.targetApy.toNumber() : null,
-      currentApy: oathAccount.currentApy ? oathAccount.currentApy.toNumber() : null,
+      solCollateral: oathAccount.solCollateral.toNumber(),
+      tokenAddress: oathAccount.tokenAddress.toString(),
+      targetMarketCap: oathAccount.targetMarketCap.toNumber(),
       status: oathAccount.status,
       evidence: oathAccount.evidence,
       slashingInfo: oathAccount.slashingInfo ? {
@@ -120,11 +108,11 @@ export async function getOathList(limit: number = 10, wallet: any = null) {
       .map((o: any) => ({
         id: o.account.id.toNumber(),
         creator: o.account.creator.toString(),
-        content: o.account.content,
-        category: o.account.category,
         startTime: o.account.startTime.toNumber(),
         endTime: o.account.endTime.toNumber(),
-        stableCollateral: o.account.stableCollateral.toNumber(),
+        solCollateral: o.account.solCollateral.toNumber(),
+        tokenAddress: o.account.tokenAddress.toString(),
+        targetMarketCap: o.account.targetMarketCap.toNumber(),
         status: o.account.status,
         createdAt: Number(o.account.createdAt),
         address: o.publicKey.toString()
@@ -155,11 +143,11 @@ export async function getOathsByCreator(creatorAddress: string, wallet: any = nu
     return oaths.map((o: any) => ({
       id: o.account.id.toNumber(),
       creator: o.account.creator.toString(),
-      content: o.account.content,
-      category: o.account.category,
       startTime: o.account.startTime.toNumber(),
       endTime: o.account.endTime.toNumber(),
-      stableCollateral: o.account.stableCollateral.toNumber(),
+      solCollateral: o.account.solCollateral.toNumber(),
+      tokenAddress: o.account.tokenAddress.toString(),
+      targetMarketCap: o.account.targetMarketCap.toNumber(),
       status: o.account.status,
       createdAt: Number(o.account.createdAt),
       address: o.publicKey.toString()

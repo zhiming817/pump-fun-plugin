@@ -1,56 +1,56 @@
 /**
- * PledgeTag Component
+ * OathTag Component
  *
- * Displays the pledge status of a meme coin with visual indicators.
+ * Displays the oath status of a meme coin with visual indicators.
  * This component is injected next to each meme coin card on pump.fun.
  *
  * Features:
- * - Color-coded badge based on pledge status (green for pledged, orange for not pledged)
+ * - Color-coded badge based on oath status (green for oathed, orange for not oathed)
  * - Tooltip showing detailed information on hover
- * - Centralization risk percentage for non-pledged coins
+ * - Centralization risk percentage for non-oathed coins
  * - Smooth animations and transitions
  */
 
 import React, { useState } from 'react';
-import type { PledgeTagProps } from '@/types';
+import type { OathTagProps } from '@/types';
 
 /**
- * PledgeTag component displays the pledge status badge
+ * OathTag component displays the oath status badge
  */
-export const PledgeTag: React.FC<PledgeTagProps> = ({ status, centralizationRisk }) => {
+export const OathTag: React.FC<OathTagProps> = ({ status, centralizationRisk }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   /**
-   * Get badge styling based on pledge status
+   * Get badge styling based on oath status
    */
   const getBadgeStyle = () => {
     switch (status) {
-      case 'PLEDGED':
+      case 'OATHED':
         return {
-          bg: 'bg-pledged',
+          bg: 'bg-oathed',
           text: 'text-white',
-          label: '✓ 已保障',
+          label: '✓ Oathed',
           icon: '🛡️',
         };
-      case 'NOT_PLEDGED':
+      case 'NOT_OATHED':
         return {
-          bg: 'bg-notPledged',
+          bg: 'bg-notOathed',
           text: 'text-white',
-          label: '⚠ 高风险',
+          label: '⚠ High Risk',
           icon: '⚠️',
         };
       case 'UNKNOWN':
         return {
           bg: 'bg-gray-400',
           text: 'text-white',
-          label: '? 未知',
+          label: '? Unknown',
           icon: '❓',
         };
       case 'ERROR':
         return {
           bg: 'bg-red-500',
           text: 'text-white',
-          label: '✗ 查询失败',
+          label: '✗ Error',
           icon: '✗',
         };
       default:
@@ -75,7 +75,7 @@ export const PledgeTag: React.FC<PledgeTagProps> = ({ status, centralizationRisk
 
   return (
     <div
-      className="pledge-tag-container relative inline-block pledge-fade-in"
+      className="oath-tag-container relative inline-block oath-fade-in"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
@@ -88,9 +88,9 @@ export const PledgeTag: React.FC<PledgeTagProps> = ({ status, centralizationRisk
           cursor-pointer
           transition-all duration-200
           hover:scale-105
-          pledge-shadow
+          oath-shadow
           flex items-center gap-1.5
-          ${status === 'PLEDGED' ? 'pledge-pulse' : ''}
+          ${status === 'OATHED' ? 'oath-pulse' : ''}
         `}
       >
         <span className="text-sm">{style.icon}</span>
@@ -101,20 +101,21 @@ export const PledgeTag: React.FC<PledgeTagProps> = ({ status, centralizationRisk
       {showTooltip && (
         <div
           className="
-            absolute top-full left-1/2 transform -translate-x-1/2 mt-2
+            absolute top-full left-0 mt-2
             bg-gray-900 text-white
             px-4 py-3 rounded-lg
             text-sm
-            z-50
-            pledge-shadow-lg
-            min-w-[200px]
-            pledge-fade-in
+            z-[100000]
+            oath-shadow-lg
+            min-w-[220px]
+            max-w-[300px]
+            oath-fade-in
           "
-          style={{ whiteSpace: 'nowrap' }}
+          style={{ whiteSpace: 'normal' }}
         >
           {/* Arrow */}
           <div
-            className="absolute bottom-full left-1/2 transform -translate-x-1/2"
+            className="absolute bottom-full left-4"
             style={{
               width: 0,
               height: 0,
@@ -128,42 +129,42 @@ export const PledgeTag: React.FC<PledgeTagProps> = ({ status, centralizationRisk
           <div className="space-y-2">
             <div className="font-bold text-base">{style.label}</div>
 
-            {status === 'PLEDGED' && (
+            {status === 'OATHED' && (
               <>
                 <div className="text-gray-300 text-xs">
-                  该项目已参与毕业誓言计划
+                  This project has joined the Graduation Oath Program
                 </div>
-                <div className="text-pledged-light text-xs font-medium">
-                  ✓ 承诺不会Rug Pull
+                <div className="text-oathed-light text-xs font-medium">
+                  ✓ Committed to No Rug Pull
                 </div>
               </>
             )}
 
-            {status === 'NOT_PLEDGED' && (
+            {status === 'NOT_OATHED' && (
               <>
                 <div className="text-gray-300 text-xs">
-                  该项目未参与毕业誓言
+                  This project has not joined the oath program
                 </div>
                 {centralizationRisk !== undefined && (
-                  <div className="text-notPledged-light text-xs font-medium">
-                    中心化风险: {formatRisk(centralizationRisk)}
+                  <div className="text-notOathed-light text-xs font-medium">
+                    Centralization Risk: {formatRisk(centralizationRisk)}
                   </div>
                 )}
                 <div className="text-xs text-gray-400 mt-2">
-                  建议谨慎投资
+                  Invest with caution
                 </div>
               </>
             )}
 
             {status === 'UNKNOWN' && (
               <div className="text-gray-300 text-xs">
-                无法获取该项目信息
+                Unable to retrieve project information
               </div>
             )}
 
             {status === 'ERROR' && (
               <div className="text-gray-300 text-xs">
-                查询服务暂时不可用
+                Query service temporarily unavailable
               </div>
             )}
           </div>
@@ -173,5 +174,5 @@ export const PledgeTag: React.FC<PledgeTagProps> = ({ status, centralizationRisk
   );
 };
 
-export default PledgeTag;
+export default OathTag;
 

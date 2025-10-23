@@ -1,19 +1,19 @@
 /**
- * API Client for communicating with the backend pledge checking service
+ * API Client for communicating with the backend oath checking service
  */
 
 import type {
-  CheckPledgeRequest,
-  CheckPledgeResponse,
+  CheckOathRequest,
+  CheckOathResponse,
   MemeData,
-  PledgeStatus,
+  OathStatus,
 } from '@/types';
 
 /**
  * Configuration for API client
  */
 const API_CONFIG = {
-  endpoint: 'https://api.your-backend.com/v1/memes/check-pledge',
+  endpoint: 'https://api.your-backend.com/v1/memes/check-oath',
   timeout: 10000, // 10 seconds
   useMock: true, // 设置为 false 使用真实后端
 };
@@ -32,27 +32,27 @@ function generateMockData(memeIds: string[]): Record<string, MemeData> {
       case 0:
         // 已质押
         result[id] = {
-          status: 'PLEDGED' as PledgeStatus,
+          status: 'OATHED' as OathStatus,
         };
         break;
       case 1:
         // 未质押 - 高风险
         result[id] = {
-          status: 'NOT_PLEDGED' as PledgeStatus,
+          status: 'NOT_OATHED' as OathStatus,
           centralizationRisk: 0.85,
         };
         break;
       case 2:
         // 未质押 - 中等风险
         result[id] = {
-          status: 'NOT_PLEDGED' as PledgeStatus,
+          status: 'NOT_OATHED' as OathStatus,
           centralizationRisk: 0.55,
         };
         break;
       case 3:
         // 未知
         result[id] = {
-          status: 'UNKNOWN' as PledgeStatus,
+          status: 'UNKNOWN' as OathStatus,
         };
         break;
     }
@@ -62,18 +62,18 @@ function generateMockData(memeIds: string[]): Record<string, MemeData> {
 }
 
 /**
- * Batch check pledge status for multiple meme coins
+ * Batch check oath status for multiple meme coins
  *
  * @param memeIds - Array of meme coin IDs to check
- * @returns Promise resolving to a map of meme ID to pledge data
+ * @returns Promise resolving to a map of meme ID to oath data
  *
  * @example
  * ```typescript
- * const results = await checkPledgeStatus(['id1', 'id2', 'id3']);
- * console.log(results['id1']); // { status: 'PLEDGED' }
+ * const results = await checkOathStatus(['id1', 'id2', 'id3']);
+ * console.log(results['id1']); // { status: 'OATHED' }
  * ```
  */
-export async function checkPledgeStatus(
+export async function checkOathStatus(
   memeIds: string[]
 ): Promise<Record<string, MemeData>> {
   // Return empty object if no IDs provided
@@ -83,12 +83,12 @@ export async function checkPledgeStatus(
 
   // Remove duplicates
   const uniqueIds = Array.from(new Set(memeIds));
-
+  
   // 如果使用 Mock 数据，直接返回模拟数据
   if (API_CONFIG.useMock) {
-    console.log('[Pledge Tracker] Using mock data for', uniqueIds.length, 'memes');
-    // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
+    console.log('[Oath Tracker] Using mock data for', uniqueIds.length, 'memes');
+    // 模拟网络延迟 - 减少到 500ms 避免重复触发
+    await new Promise(resolve => setTimeout(resolve, 500));
     return generateMockData(uniqueIds);
   }
 
@@ -97,7 +97,7 @@ export async function checkPledgeStatus(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
 
-    const requestBody: CheckPledgeRequest = {
+    const requestBody: CheckOathRequest = {
       memeIds: uniqueIds,
     };
 
@@ -116,7 +116,7 @@ export async function checkPledgeStatus(
       throw new Error(`API request failed with status ${response.status}`);
     }
 
-    const data: CheckPledgeResponse = await response.json();
+    const data: CheckOathResponse = await response.json();
 
     // Validate response structure
     if (!data || typeof data.data !== 'object') {
@@ -130,20 +130,20 @@ export async function checkPledgeStatus(
         result[id] = data.data[id];
       } else {
         result[id] = {
-          status: 'UNKNOWN' as PledgeStatus,
-        };
+        status: 'UNKNOWN' as OathStatus,
+      };
       }
     }
 
     return result;
   } catch (error) {
-    console.error('[Pledge Tracker] API request failed:', error);
+    console.error('[Oath Tracker] API request failed:', error);
 
     // Return ERROR status for all requested IDs
     const errorResult: Record<string, MemeData> = {};
     for (const id of uniqueIds) {
       errorResult[id] = {
-        status: 'ERROR' as PledgeStatus,
+        status: 'ERROR' as OathStatus,
       };
     }
     return errorResult;

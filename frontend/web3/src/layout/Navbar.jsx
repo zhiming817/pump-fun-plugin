@@ -17,6 +17,7 @@ const Navbar = () => {
 
   const navigation = [
     { name: 'Home', href: '/' },
+    { name: 'Launch Oath', href: '/oaths/create' },
     { name: 'Active Oaths', href: '/oaths' },
     { name: 'Protocol Stats', href: '/stats' },
     { name: 'Browse Projects', href: '/projects' },
@@ -53,26 +54,22 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => handleNavigation(item.href)}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive(item.href)
-                    ? 'text-white bg-emerald-500'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
-                }`}
-              >
-                {item.name}
-              </button>
+              <React.Fragment key={item.name}>
+                <button
+                  onClick={() => handleNavigation(item.href)}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive(item.href)
+                      ? 'text-white bg-emerald-500'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                  }`}
+                >
+                  {item.name}
+                </button>
+
+                {/* Insert Launch Oath immediately after Home */}
+               
+              </React.Fragment>
             ))}
-            
-            {/* Launch Oath Button */}
-            <button
-              onClick={() => handleNavigation('/oaths/create')}
-              className="px-4 py-2 rounded-md text-sm font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
-            >
-              Launch Oath
-            </button>
           </div>
 
           {/* Wallet Connection */}
@@ -116,31 +113,29 @@ const Navbar = () => {
           <div className="md:hidden border-t border-gray-800 pt-4 pb-4">
             <div className="space-y-2">
               {navigation.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => handleNavigation(item.href)}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    isActive(item.href)
-                      ? 'text-emerald-400 bg-emerald-500/10'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
-                  }`}
-                >
-                  {item.name}
-                </button>
-              ))}
-              
-              {/* Create Items in Mobile */}
-              <div className="border-t border-gray-800 pt-2 mt-2">
-                {createItems.map((item) => (
+                <React.Fragment key={item.name}>
                   <button
-                    key={item.name}
                     onClick={() => handleNavigation(item.href)}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                    className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      isActive(item.href)
+                        ? 'text-emerald-400 bg-emerald-500/10'
+                        : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    }`}
                   >
                     {item.name}
                   </button>
-                ))}
-              </div>
+
+                  {/* Insert Launch Oath immediately after Home on mobile */}
+                  {item.name === 'Home' && (
+                    <button
+                      onClick={() => handleNavigation('/oaths/create')}
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-colors mt-2"
+                    >
+                      Launch Oath
+                    </button>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </div>
         )}

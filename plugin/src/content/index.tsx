@@ -2,11 +2,11 @@
  * Content Script Entry Point
  *
  * This is the main entry point for the content script that runs on pump.fun pages.
- * It orchestrates the entire pledge tracking workflow:
+ * It orchestrates the entire oath tracking workflow:
  *
  * 1. Periodically scans the page for meme coin cards
- * 2. Extracts meme IDs and queries the pledge API
- * 3. Injects React components (PledgeTag) into the page using Shadow DOM
+ * 2. Extracts meme IDs and queries the oath API
+ * 3. Injects React components (OathTag) into the page using Shadow DOM
  * 4. Displays a main banner promoting the official website
  *
  * The script is designed to be robust, handling DOM changes, API failures,
@@ -14,14 +14,14 @@
  */
 
 import { createRoot, Root } from 'react-dom/client';
-import { PledgeTag } from '@/components/PledgeTag';
+import { OathTag } from '@/components/OathTag';
 import { MainBanner } from '@/components/MainBanner';
 import {
   scanMemeCards,
   markCardAsInjected,
   findInjectionPoint,
 } from './dom-scanner';
-import { checkPledgeStatus } from '@/api/client';
+import { checkOathStatus } from '@/api/08';
 import type { MemeCardInfo, MemeData } from '@/types';
 import '@/styles/index.css';
 
@@ -29,8 +29,8 @@ import '@/styles/index.css';
  * Configuration
  */
 const CONFIG = {
-  scanInterval: 5000, // Scan every 5 seconds
-  officialWebsite: 'https://your-website.com',
+  scanInterval: 10000, // Scan every 10 seconds (reduced frequency)
+  officialWebsite: 'https://oathantidump.vercel.app/',
   bannerInjectionDelay: 2000, // Wait 2 seconds before injecting banner
 };
 
@@ -49,7 +49,7 @@ let bannerInjected = false;
  * Called when the content script loads
  */
 function initialize(): void {
-  console.log('[Pledge Tracker] Extension initialized on pump.fun');
+  console.log('[Oath Tracker] Extension initialized on pump.fun');
 
   // Inject main banner after a short delay to ensure page is loaded
   setTimeout(() => {
@@ -84,63 +84,72 @@ async function performScan(): Promise<void> {
     const cards = scanMemeCards();
 
     if (cards.length === 0) {
-      console.log('[Pledge Tracker] No meme cards found on page');
+      // Reduce log frequency - only log first time
       return;
     }
-
-    console.log(`[Pledge Tracker] Found ${cards.length} meme cards`);
 
     // Filter cards that haven't been injected yet
     const cardsToProcess = cards.filter((card) => !card.hasInjectedTag);
 
     if (cardsToProcess.length === 0) {
-      console.log('[Pledge Tracker] All cards already processed');
+      // No new cards to process, skip logging
       return;
     }
 
     // Extract IDs for API query
     const memeIds = cardsToProcess.map((card) => card.id);
 
-    // Query API for pledge status
-    console.log(`[Pledge Tracker] Querying API for ${memeIds.length} memes`);
-    const pledgeData = await checkPledgeStatus(memeIds);
+    // Query API for oath status - only log when actually querying
+    console.log(`[Oath Tracker] Processing ${memeIds.length} new meme cards`);
+    const oathData = await checkOathStatus(memeIds);
 
     // Inject tags for each card
+    let injectedCount = 0;
     for (const card of cardsToProcess) {
-      const data = pledgeData[card.id];
+      const data = oathData[card.id];
       if (data) {
-        injectPledgeTag(card, data);
+        injectOathTag(card, data);
         markCardAsInjected(card.id);
+        injectedCount++;
       }
     }
+    
+    // Single summary log instead of one per card
+    if (injectedCount > 0) {
+      console.log(`[Oath Tracker] Injected ${injectedCount} oath tags`);
+    }
   } catch (error) {
-    console.error('[Pledge Tracker] Error during scan:', error);
+    console.error('[Oath Tracker] Error during scan:', error);
   }
 }
 
 /**
- * Inject a pledge tag component into a meme card
+ * Inject an oath tag component into a meme card
  *
  * @param card - The meme card information
- * @param data - The pledge data from API
+ * @param data - The oath data from API
  */
-function injectPledgeTag(card: MemeCardInfo, data: MemeData): void {
+function injectOathTag(card: MemeCardInfo, data: MemeData): void {
   try {
     // Find the best place to inject the tag
     const injectionPoint = findInjectionPoint(card.element);
     if (!injectionPoint) {
-      console.warn('[Pledge Tracker] No injection point found for card:', card.id);
+      // Silently skip if no injection point - this is expected for some layouts
       return;
     }
 
     // Create a container for the React component
     const container = document.createElement('div');
-    container.className = 'pledge-tag-wrapper';
+    container.className = 'oath-tag-wrapper';
+    
+    // Use more specific positioning to avoid overlap
     container.style.cssText = `
       position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 1000;
+      top: 4px;
+      left: 4px;
+      z-index: 99999 !important;
+      pointer-events: auto;
+      max-width: calc(100% - 8px);
     `;
 
     // Create Shadow DOM to isolate styles
@@ -158,7 +167,7 @@ function injectPledgeTag(card: MemeCardInfo, data: MemeData): void {
     // Render React component
     const root = createRoot(reactContainer);
     root.render(
-      <PledgeTag
+      <OathTag
         status={data.status}
         centralizationRisk={data.centralizationRisk}
       />
@@ -168,15 +177,18 @@ function injectPledgeTag(card: MemeCardInfo, data: MemeData): void {
     reactRoots.set(card.id, root);
 
     // Inject into DOM
-    // Make sure the injection point has relative positioning
-    if (getComputedStyle(injectionPoint).position === 'static') {
+    // Make sure the injection point has relative positioning and proper stacking context
+    const computedStyle = getComputedStyle(injectionPoint);
+    if (computedStyle.position === 'static') {
       injectionPoint.style.position = 'relative';
     }
+    // Ensure parent doesn't clip overflow
+    injectionPoint.style.overflow = 'visible';
     injectionPoint.appendChild(container);
 
-    console.log(`[Pledge Tracker] Injected tag for meme: ${card.id}`);
+    // Removed individual log - summary log in performScan instead
   } catch (error) {
-    console.error('[Pledge Tracker] Error injecting tag:', error);
+    console.error('[Oath Tracker] Error injecting tag:', error);
   }
 }
 
@@ -225,13 +237,13 @@ function injectMainBanner(): void {
     }
 
     if (!targetElement) {
-      console.warn('[Pledge Tracker] Could not find injection point for banner');
+      console.warn('[Oath Tracker] Could not find injection point for banner');
       return;
     }
 
     // Create container
     const container = document.createElement('div');
-    container.className = 'pledge-banner-root';
+    container.className = 'oath-banner-root';
     container.style.cssText = `
       position: sticky;
       top: 0;
@@ -267,9 +279,9 @@ function injectMainBanner(): void {
     targetElement.insertBefore(container, targetElement.firstChild);
 
     bannerInjected = true;
-    console.log('[Pledge Tracker] Main banner injected into:', targetElement.tagName);
+    console.log('[Oath Tracker] Main banner injected into:', targetElement.tagName);
   } catch (error) {
-    console.error('[Pledge Tracker] Error injecting banner:', error);
+    console.error('[Oath Tracker] Error injecting banner:', error);
   }
 }
 
@@ -277,28 +289,47 @@ function injectMainBanner(): void {
  * Observe DOM changes to handle dynamically loaded content
  */
 function observeDOMChanges(): void {
+  // Create a debounced scan function ONCE, outside the observer callback
+  const debouncedScan = debounce(() => performScan(), 2000);
+  
   const observer = new MutationObserver((mutations) => {
     // Check if new meme cards were added
     let shouldScan = false;
 
     for (const mutation of mutations) {
       if (mutation.addedNodes.length > 0) {
-        shouldScan = true;
-        break;
+        // Only trigger if added nodes are elements (not text nodes)
+        const hasElementNodes = Array.from(mutation.addedNodes).some(
+          node => node.nodeType === Node.ELEMENT_NODE
+        );
+        if (hasElementNodes) {
+          shouldScan = true;
+          break;
+        }
       }
     }
 
     if (shouldScan) {
-      // Debounce the scan to avoid excessive calls
-      debounce(() => performScan(), 1000)();
+      // Use the same debounced function instance
+      debouncedScan();
     }
   });
 
-  // Start observing
+  // Start observing - only watch for direct children changes, not all subtree
+  // This significantly reduces the number of mutations being tracked
   observer.observe(document.body, {
     childList: true,
-    subtree: true,
+    subtree: false, // Only watch direct children, not deep changes
   });
+  
+  // Also watch the main content container if it exists
+  const mainContainer = document.querySelector('main, #root, [role="main"]');
+  if (mainContainer) {
+    observer.observe(mainContainer, {
+      childList: true,
+      subtree: true,
+    });
+  }
 }
 
 /**
@@ -331,24 +362,24 @@ function getTailwindStyles(): string {
     }
 
     /* Tailwind-like utility classes - simplified for Shadow DOM */
-    .bg-pledged { background-color: #10b981; }
-    .bg-pledged-dark { background-color: #059669; }
-    .bg-pledged-light { background-color: #d1fae5; }
-    .bg-notPledged { background-color: #f59e0b; }
-    .bg-notPledged-dark { background-color: #d97706; }
-    .bg-notPledged-light { background-color: #fed7aa; }
+    .bg-oathed { background-color: #10b981; }
+    .bg-oathed-dark { background-color: #059669; }
+    .bg-oathed-light { background-color: #d1fae5; }
+    .bg-notOathed { background-color: #f59e0b; }
+    .bg-notOathed-dark { background-color: #d97706; }
+    .bg-notOathed-light { background-color: #fed7aa; }
     .bg-gray-900 { background-color: #111827; }
     .bg-gray-400 { background-color: #9ca3af; }
     .bg-red-500 { background-color: #ef4444; }
     .bg-white { background-color: #ffffff; }
     .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
-    .from-pledged { --tw-gradient-from: #10b981; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(16, 185, 129, 0)); }
-    .to-pledged-dark { --tw-gradient-to: #059669; }
+    .from-oathed { --tw-gradient-from: #10b981; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(16, 185, 129, 0)); }
+    .to-oathed-dark { --tw-gradient-to: #059669; }
     
     .text-white { color: #ffffff; }
-    .text-pledged-dark { color: #059669; }
-    .text-pledged-light { color: #d1fae5; }
-    .text-notPledged-light { color: #fed7aa; }
+    .text-oathed-dark { color: #059669; }
+    .text-oathed-light { color: #d1fae5; }
+    .text-notOathed-light { color: #fed7aa; }
     .text-gray-300 { color: #d1d5db; }
     .text-gray-400 { color: #9ca3af; }
     .text-gray-500 { color: #6b7280; }
@@ -411,10 +442,10 @@ function getTailwindStyles(): string {
     
     .hover\\:scale-105:hover { transform: scale(1.05); }
     .hover\\:scale-\\[1\\.02\\]:hover { transform: scale(1.02); }
-    .hover\\:bg-pledged-light:hover { background-color: #d1fae5; }
+    .hover\\:bg-oathed-light:hover { background-color: #d1fae5; }
     
-    .pledge-shadow { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); }
-    .pledge-shadow-lg { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); }
+    .oath-shadow { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); }
+    .oath-shadow-lg { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); }
     
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-5px); }
@@ -426,8 +457,8 @@ function getTailwindStyles(): string {
       50% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
     }
     
-    .pledge-fade-in { animation: fadeIn 0.3s ease-out; }
-    .pledge-pulse { animation: pulse-glow 2s ease-in-out infinite; }
+    .oath-fade-in { animation: fadeIn 0.3s ease-out; }
+    .oath-pulse { animation: pulse-glow 2s ease-in-out infinite; }
   `;
 }
 
@@ -435,7 +466,7 @@ function getTailwindStyles(): string {
  * Cleanup function (called when navigating away)
  */
 function cleanup(): void {
-  console.log('[Pledge Tracker] Cleaning up...');
+  console.log('[Oath Tracker] Cleaning up...');
 
   // Unmount all React components
   reactRoots.forEach((root) => {
