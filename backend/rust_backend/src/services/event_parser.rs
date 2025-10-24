@@ -1,7 +1,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use borsh::BorshDeserialize;
 
-use crate::models::{VaultCreatedEvent, CreateEvent, TradeEvent};
+use crate::models::{VaultCreatedEvent, CreateEvent, TradeEvent, OathCreatedEvent};
 
 /// 事件解析服务
 pub struct EventParserService;
@@ -247,6 +247,47 @@ impl EventParserService {
         }
         
         None
+    }
+
+    /// 从日志行解析 OathCreatedEvent
+    /// 
+    /// # Arguments
+    /// * `log_line` - 包含 "Program data:" 的日志行
+    /// # Returns
+    /// * `Option<OathCreatedEvent>` - 解析成功返回事件，否则返回 None
+    pub fn parse_oath_created_event_from_log(&self, log_line: &str) -> Option<OathCreatedEvent> {
+        if !log_line.contains("Program data:") {
+            return None;
+        }
+        let parts: Vec<&str> = log_line.split("Program data: ").collect();
+        if parts.len() < 2 {
+            return None;
+        }
+        let base64_data = parts[1].trim();
+        match general_purpose::STANDARD.decode(base64_data) {
+            Ok(decoded_data) => {
+                if decoded_data.len() <= 8 {
+                    eprintln!("  ⚠️  解码数据太短: {} bytes", decoded_data.len());
+                    return None;
+                }
+                let event_data = &decoded_data[8..];
+                match OathCreatedEvent::try_from_slice(event_data) {
+                    Ok(event) => {
+                        println!("  ✅ 成功解析 OathCreatedEvent 数据!");
+                        Some(event)
+                    }
+                    Err(e) => {
+                        eprintln!("  ❌ OathCreatedEvent Borsh 反序列化失败: {}", e);
+                        eprintln!("  数据长度: {} bytes", event_data.len());
+                        None
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("  ❌ Base64 解码失败: {}", e);
+                None
+            }
+        }
     }
 }
 

@@ -68,12 +68,16 @@ impl WebSocketService {
 
         // 处理日志流
         while let Some(log_result) = stream.next().await {
+            // 打印收到的交易签名（调试用）
+            println!("🔔 收到交易: {}", log_result.value.signature);
+            
             // 检查日志内容（logs 是 Vec<String>，不是 Option）
             let logs = &log_result.value.logs;
             let mut has_program_data = false;
 
             // 判断是监听哪个程序
             let is_pumpfun_program = self.program_id.to_string() == "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
+            let is_oath_program = self.program_id.to_string() == "Ad4ac7oFBgHA9NZ7jkvhUurj5iytxHighGtTRokbrLbQ";
 
             // 检查是否包含 Program data（这是最可靠的标记）
             for log in logs {
@@ -85,6 +89,7 @@ impl WebSocketService {
             }
 
             if !has_program_data {
+                println!("  ⚠️  没有 Program data，跳过");
                 continue;
             }
 
@@ -158,6 +163,42 @@ impl WebSocketService {
                                         Err(e) => {
                                             eprintln!("❌ 保存 TradeEvent 失败: {}", e);
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if is_oath_program {
+                // 解析 OathCreatedEvent 数据
+                for log in logs {
+                    if log.contains("Program data:") {
+                        println!("  📊 检测到 Oath 合约事件");
+
+                        // 解析 OathCreatedEvent
+                        if let Some(event) = self.event_parser.parse_oath_created_event_from_log(log) {
+                            println!("============================================================");
+                            println!("🔐 OathCreatedEvent 详情");
+                            println!("============================================================");
+                            println!("Oath ID: {}", event.oath_id);
+                            println!("创建者: {}", event.creator);
+                            println!("Token 地址: {}", event.token_address);
+                            println!("SOL 抵押: {} SOL ({} lamports)", event.sol_collateral as f64 / 1_000_000_000.0, event.sol_collateral);
+                            println!("目标市值: ${}", event.target_market_cap as f64 / 1_000_000.0);
+                            println!("开始时间: {}", event.start_time);
+                            println!("结束时间: {}", event.end_time);
+                            println!("创建时间戳: {}", event.timestamp);
+                            println!("============================================================\n");
+
+                            // 保存到数据库
+                            if let Some(ref db) = self.db_service {
+                                let signature = log_result.value.signature.as_str();
+                                match db.save_oath_created_event(&event, Some(signature)).await {
+                                    Ok(_) => {
+                                        println!("💾 ✅ OathCreatedEvent 已成功保存到数据库");
+                                    }
+                                    Err(e) => {
+                                        eprintln!("❌ 保存 OathCreatedEvent 失败: {}", e);
                                     }
                                 }
                             }

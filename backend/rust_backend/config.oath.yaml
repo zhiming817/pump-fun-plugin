@@ -1,0 +1,49 @@
+# Oath 合约事件监听器配置文件
+
+# Solana RPC 配置
+solana:
+  # 当前激活的网络: mainnet | devnet | testnet
+  active_network: devnet
+  
+  # 多个网络的 RPC 端点配置
+  networks:
+    # 开发网配置
+    devnet:
+      rpc_url: "https://solana-devnet.nodit.io/g_geDW2RLecIkMAlMGV6TL6veVho5cNS"
+      # WebSocket URL 将从 rpc_url 自动转换
+      # wss_url: "wss://solana-devnet.nodit.io/g_geDW2RLecIkMAlMGV6TL6veVho5cNS"
+
+# Oath 合约配置
+vault:
+  # Oath 合约程序 ID (部署在 devnet)
+  program_id: "Ad4ac7oFBgHA9NZ7jkvhUurj5iytxHighGtTRokbrLbQ"
+
+# 监听器配置
+listener:
+  # 监听模式: "websocket" (实时监听)
+  mode: "websocket"
+  
+  # 轮询间隔（秒）- 仅在 polling 模式下生效
+  poll_interval_secs: 5
+  
+  # 事件解析配置: "none" (不解析 pumpfun 事件，只监听 Oath 事件)
+  event_parse: "none"
+
+# 数据库配置
+database:
+  # 数据库类型: "mysql", "postgres" 或 "sqlite"
+  type: "mysql"
+  
+  # SQLite 数据库文件路径（当 type = "sqlite" 时使用）
+  sqlite_path: "data/oath_events.db"
+  
+  # MySQL 配置（当 type = "mysql" 时使用）
+  mysql_host: "127.0.0.1"
+  mysql_port: 3306
+  mysql_user: "root"
+  mysql_password: "root"
+  mysql_database: "pumpfun_mainnet"
+  
+  # 连接池配置
+  max_connections: 5
+  min_connections: 1
