@@ -6,9 +6,11 @@ pub mod state;
 pub mod instructions;
 pub mod errors;
 pub mod utils;
+pub mod events;
 
 use instructions::*;
 pub use errors::*;
+pub use events::*;
 
 #[program]
 pub mod pumpfun_oath_contract {

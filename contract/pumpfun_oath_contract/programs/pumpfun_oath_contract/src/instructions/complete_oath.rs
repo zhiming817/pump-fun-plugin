@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
+use crate::events::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct CompleteOathArgs {
@@ -52,17 +53,8 @@ pub fn complete_oath_handler(ctx: Context<CompleteOath>, args: CompleteOathArgs)
     require!(args.evidence.len() <= 500, crate::errors::ErrorCode::InvalidEvidence);
     require!(!args.evidence.is_empty(), crate::errors::ErrorCode::InvalidEvidence);
 
-    // 计算总抵押价值
-    let mut total_token_value = 0u64;
-    for token in &oath.collateral_tokens {
-        total_token_value = total_token_value
-            .checked_add(token.usd_value)
-            .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
-    }
-
-    let total_collateral_value = oath.stable_collateral
-        .checked_add(total_token_value)
-        .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
+    // 获取总抵押价值（现在只有 SOL）
+    let total_collateral_value = oath.sol_collateral;
 
     // 更新誓言状态
     oath.status = OathStatus::Completed;
@@ -71,17 +63,21 @@ pub fn complete_oath_handler(ctx: Context<CompleteOath>, args: CompleteOathArgs)
 
     // 更新抵押池（释放抵押）
     collateral_pool.total_stable_collateral = collateral_pool.total_stable_collateral
-        .checked_sub(oath.stable_collateral)
-        .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
-
-    collateral_pool.total_token_collateral = collateral_pool.total_token_collateral
-        .checked_sub(total_token_value)
+        .checked_sub(oath.sol_collateral)
         .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
 
     // 更新全局状态（释放总抵押）
     global_state.total_collateral = global_state.total_collateral
         .checked_sub(total_collateral_value)
         .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
+
+    // 发射事件
+    emit!(OathCompleted {
+        oath_id: oath.id,
+        creator: oath.creator,
+        evidence: oath.evidence.clone(),
+        timestamp: oath.updated_at,
+    });
 
     msg!("Oath {} completed successfully by {}", oath.id, oath.creator);
     Ok(())

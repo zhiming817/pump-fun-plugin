@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
+use crate::events::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct SlashOathArgs {
@@ -54,17 +55,8 @@ pub fn slash_oath_handler(ctx: Context<SlashOath>, args: SlashOathArgs) -> Resul
     require!(args.reason.len() <= 200, crate::errors::ErrorCode::InvalidEvidence);
     require!(!args.reason.is_empty(), crate::errors::ErrorCode::InvalidEvidence);
 
-    // 计算总抵押价值
-    let mut total_token_value = 0u64;
-    for token in &oath.collateral_tokens {
-        total_token_value = total_token_value
-            .checked_add(token.usd_value)
-            .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
-    }
-
-    let total_collateral_value = oath.stable_collateral
-        .checked_add(total_token_value)
-        .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
+    // 获取总抵押价值（现在只有 SOL）
+    let total_collateral_value = oath.sol_collateral;
 
     // 计算削减金额
     let slashed_amount = total_collateral_value
@@ -75,6 +67,10 @@ pub fn slash_oath_handler(ctx: Context<SlashOath>, args: SlashOathArgs) -> Resul
 
     // 更新誓言状态
     oath.status = OathStatus::Failed;
+    
+    // 克隆 reason 以便在事件中使用
+    let reason_clone = args.reason.clone();
+    
     oath.slashing_info = Some(SlashingInfo {
         slashed_amount,
         slashing_time: Clock::get()?.unix_timestamp as u64,
@@ -84,17 +80,22 @@ pub fn slash_oath_handler(ctx: Context<SlashOath>, args: SlashOathArgs) -> Resul
 
     // 更新抵押池
     collateral_pool.total_stable_collateral = collateral_pool.total_stable_collateral
-        .checked_sub(oath.stable_collateral)
-        .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
-
-    collateral_pool.total_token_collateral = collateral_pool.total_token_collateral
-        .checked_sub(total_token_value)
+        .checked_sub(oath.sol_collateral)
         .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
 
     // 更新全局状态
     global_state.total_collateral = global_state.total_collateral
         .checked_sub(total_collateral_value)
         .ok_or(crate::errors::ErrorCode::ArithmeticOverflow)?;
+
+    // 发射事件
+    emit!(OathSlashed {
+        oath_id: oath.id,
+        creator: oath.creator,
+        slashed_amount,
+        reason: reason_clone,
+        timestamp: oath.updated_at,
+    });
 
     msg!(
         "Oath {} slashed by authority. Amount: {}, Reason: {}", 

@@ -510,6 +510,47 @@
       ]
     }
   ],
+  "events": [
+    {
+      "name": "OathCompleted",
+      "discriminator": [
+        133,
+        34,
+        10,
+        113,
+        22,
+        20,
+        109,
+        103
+      ]
+    },
+    {
+      "name": "OathCreated",
+      "discriminator": [
+        165,
+        157,
+        51,
+        209,
+        94,
+        123,
+        115,
+        117
+      ]
+    },
+    {
+      "name": "OathSlashed",
+      "discriminator": [
+        23,
+        151,
+        200,
+        36,
+        91,
+        63,
+        52,
+        44
+      ]
+    }
+  ],
   "errors": [
     {
       "code": 6000,
@@ -844,6 +885,107 @@
           },
           {
             "name": "updated_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OathCompleted",
+      "docs": [
+        "完成 Oath 事件"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "oath_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "evidence",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OathCreated",
+      "docs": [
+        "创建 Oath 事件"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "oath_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_collateral",
+            "type": "u64"
+          },
+          {
+            "name": "target_market_cap",
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "type": "u64"
+          },
+          {
+            "name": "end_time",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OathSlashed",
+      "docs": [
+        "削减 Oath 事件"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "oath_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "slashed_amount",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
             "type": "i64"
           }
         ]
