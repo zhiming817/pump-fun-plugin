@@ -45,30 +45,24 @@ pub struct Oath {
     // 基本信息
     pub id: u64,                                        // 誓言唯一标识符
     pub creator: Pubkey,                                // 创建者地址
-    pub content: String,                                // 誓言内容描述
-    pub category: String,                               // 誓言分类（如：DeFi、治理等）
-    pub category_id: String,                            // 誓言分类id（如：DeFi、治理等）
     
     // 时间信息
     pub start_time: u64,                                // 誓言开始时间戳
     pub end_time: u64,                                  // 誓言结束时间戳
     
-    // 抵押相关
-    pub stable_collateral: u64,                         // 稳定币抵押数量
-    pub collateral_tokens: Vec<CollateralToken>,        // 其他抵押代币列表
-    pub is_over_collateralized: bool,                   // 是否过度抵押
+    // 抵押相关 (仅支持 SOL)
+    pub sol_collateral: u64,                            // SOL抵押数量（单位：lamports）
     
     // PumpFun 相关
-    pub token_address: Option<Pubkey>,                  // 关联的 pumpfun token 地址（可选）
-    pub target_apy: Option<u64>,                        // 目标年化收益率（基点）
-    pub current_apy: Option<u64>,                       // 当前年化收益率（基点）
+    pub token_address: Pubkey,                          // 关联的 pumpfun token 地址（必填）
+    pub target_market_cap: u64,                         // 目标市值（单位：USDC，例如 78320 表示 $78,320）
     
     // 状态和证据
     pub status: OathStatus,                             // 誓言状态
     pub evidence: String,                               // 完成证据
     
     // 风险管理
-    pub slashing_info: Option<SlashingInfo>,            // 削减信息（如果被惩罚）
+    pub slashing_info: Option<SlashingInfo>,            // 削减信息（如果被惩罚）-
     pub compensation_info: Option<CompensationInfo>,     // 补偿信息（如果需要赔偿）
     
     // 内部管理字段
@@ -81,17 +75,11 @@ impl Oath {
     pub const MAXIMUM_SIZE: usize = 8  // discriminator
         + 8                            // id
         + 32                           // creator
-        + (4 + 200)                    // content (max 200 chars)
-        + (4 + 50)                     // category (max 50 chars)
-        + (4 + 50)                     // category_id (max 50 chars)
         + 8                            // start_time
         + 8                            // end_time
-        + 8                            // stable_collateral
-        + (4 + 10 * (4 + 20 + 8 + 4 + 50 + 8 + 8)) // collateral_tokens (max 10 tokens)
-        + 1                            // is_over_collateralized
-        + (1 + 32)                     // token_address (Option)
-        + (1 + 8)                      // target_apy (Option)
-        + (1 + 8)                      // current_apy (Option)
+        + 8                            // sol_collateral
+        + 32                           // token_address (必填)
+        + 8                            // target_market_cap
         + 1                            // status
         + (4 + 500)                    // evidence (max 500 chars)
         + (1 + 8 + 8 + 4 + 200)       // slashing_info (Option)

@@ -3,9 +3,10 @@ use sea_orm::sea_query::OnConflict;
 use std::time::Duration;
 
 use crate::config::DatabaseConfig;
-use crate::models::{CreateEvent, TradeEvent};
+use crate::models::{CreateEvent, TradeEvent, OathCreatedEvent};
 use crate::models::create_event_entity::{self, Entity as CreateEventEntity, Model as CreateEventModel};
 use crate::models::trade_event_entity::{self, Entity as TradeEventEntity, Model as TradeEventModel};
+use crate::models::oath_created_event_entity::{self, Entity as OathCreatedEventEntity, Model as OathCreatedEventModel};
 use crate::services::metadata_parser::{MetadataParserService, UriMetadata};
 
 /// 数据库服务 - 使用 SeaORM
@@ -98,6 +99,19 @@ impl DatabaseService {
             Err(e) => {
                 if e.to_string().contains("already exists") || e.to_string().contains("Duplicate") {
                     println!("✅ trade_events 表已存在");
+                } else {
+                    return Err(e.into());
+                }
+            }
+        }
+        
+        // 创建 oath_created_events 表
+        let oath_created_event_stmt = schema.create_table_from_entity(OathCreatedEventEntity);
+        match self.db.execute(backend.build(&oath_created_event_stmt)).await {
+            Ok(_) => println!("✅ oath_created_events 表初始化成功"),
+            Err(e) => {
+                if e.to_string().contains("already exists") || e.to_string().contains("Duplicate") {
+                    println!("✅ oath_created_events 表已存在");
                 } else {
                     return Err(e.into());
                 }
@@ -468,5 +482,104 @@ impl DatabaseService {
         println!("  ❌ 失败: {}", fail_count);
 
         Ok((success_count, fail_count))
+    }
+
+    /// 保存 OathCreatedEvent 到数据库
+    /// 
+    /// # Arguments
+    /// * `event` - OathCreatedEvent 事件数据
+    /// * `signature` - 可选的交易签名
+    /// 
+    /// # Returns
+    /// * `Result<(), Box<dyn std::error::Error>>` - 成功返回 Ok，失败返回错误
+    pub async fn save_oath_created_event(
+        &self,
+        event: &OathCreatedEvent,
+        signature: Option<&str>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        // 检查 oath_id 是否已存在
+        let exists = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::OathId.eq(event.oath_id as i64))
+            .one(&self.db)
+            .await?;
+
+        if exists.is_some() {
+            println!("ℹ️  OathCreatedEvent 已存在（oath_id: {}），跳过", event.oath_id);
+            return Ok(());
+        }
+
+        // 插入新记录
+        let active_model = oath_created_event_entity::ActiveModel {
+            id: NotSet,
+            oath_id: Set(event.oath_id as i64),
+            creator: Set(event.creator.to_string()),
+            token_address: Set(event.token_address.to_string()),
+            sol_collateral: Set(event.sol_collateral as i64),
+            target_market_cap: Set(event.target_market_cap as i64),
+            start_time: Set(event.start_time as i64),
+            end_time: Set(event.end_time as i64),
+            timestamp: Set(event.timestamp),
+            signature: Set(signature.map(|s| s.to_string())),
+            created_at: Set(chrono::Utc::now().naive_utc()),
+        };
+
+        OathCreatedEventEntity::insert(active_model)
+            .exec(&self.db)
+            .await?;
+
+        println!("💾 OathCreatedEvent 已保存到数据库 (oath_id: {})", event.oath_id);
+        Ok(())
+    }
+
+    /// 根据 oath_id 查询事件
+    pub async fn get_oath_event_by_id(&self, oath_id: u64) -> Result<Option<OathCreatedEventModel>, Box<dyn std::error::Error>> {
+        let event = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::OathId.eq(oath_id as i64))
+            .one(&self.db)
+            .await?;
+
+        Ok(event)
+    }
+
+    /// 根据创建者查询 Oath 事件
+    pub async fn get_oath_events_by_creator(&self, creator: &str) -> Result<Vec<OathCreatedEventModel>, Box<dyn std::error::Error>> {
+        let events = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::Creator.eq(creator))
+            .order_by_desc(oath_created_event_entity::Column::CreatedAt)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
+
+    /// 根据 token 地址查询 Oath 事件
+    pub async fn get_oath_events_by_token(&self, token_address: &str) -> Result<Vec<OathCreatedEventModel>, Box<dyn std::error::Error>> {
+        let events = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::TokenAddress.eq(token_address))
+            .order_by_desc(oath_created_event_entity::Column::CreatedAt)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
+
+    /// 获取最近的 Oath 事件
+    pub async fn get_recent_oath_events(&self, limit: u64) -> Result<Vec<OathCreatedEventModel>, Box<dyn std::error::Error>> {
+        let events = OathCreatedEventEntity::find()
+            .order_by_desc(oath_created_event_entity::Column::CreatedAt)
+            .limit(limit)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
+
+    /// 统计 Oath 事件总数
+    pub async fn count_oath_events(&self) -> Result<u64, Box<dyn std::error::Error>> {
+        let count = OathCreatedEventEntity::find()
+            .count(&self.db)
+            .await?;
+
+        Ok(count)
     }
 }
