@@ -582,4 +582,62 @@ impl DatabaseService {
 
         Ok(count)
     }
+
+    /// 分页获取 Oath 事件
+    pub async fn get_oath_events_paginated(&self, offset: u64, limit: u64) -> Result<Vec<OathCreatedEventModel>, Box<dyn std::error::Error>> {
+        let events = OathCreatedEventEntity::find()
+            .order_by_desc(oath_created_event_entity::Column::CreatedAt)
+            .offset(offset)
+            .limit(limit)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
+
+    /// 统计创建者的 Oath 事件总数
+    pub async fn count_oath_events_by_creator(&self, creator: &str) -> Result<u64, Box<dyn std::error::Error>> {
+        let count = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::Creator.eq(creator))
+            .count(&self.db)
+            .await?;
+
+        Ok(count)
+    }
+
+    /// 分页根据创建者查询 Oath 事件
+    pub async fn get_oath_events_by_creator_paginated(&self, creator: &str, offset: u64, limit: u64) -> Result<Vec<OathCreatedEventModel>, Box<dyn std::error::Error>> {
+        let events = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::Creator.eq(creator))
+            .order_by_desc(oath_created_event_entity::Column::CreatedAt)
+            .offset(offset)
+            .limit(limit)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
+
+    /// 统计 token 的 Oath 事件总数
+    pub async fn count_oath_events_by_token(&self, token_address: &str) -> Result<u64, Box<dyn std::error::Error>> {
+        let count = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::TokenAddress.eq(token_address))
+            .count(&self.db)
+            .await?;
+
+        Ok(count)
+    }
+
+    /// 分页根据 token 地址查询 Oath 事件
+    pub async fn get_oath_events_by_token_paginated(&self, token_address: &str, offset: u64, limit: u64) -> Result<Vec<OathCreatedEventModel>, Box<dyn std::error::Error>> {
+        let events = OathCreatedEventEntity::find()
+            .filter(oath_created_event_entity::Column::TokenAddress.eq(token_address))
+            .order_by_desc(oath_created_event_entity::Column::CreatedAt)
+            .offset(offset)
+            .limit(limit)
+            .all(&self.db)
+            .await?;
+
+        Ok(events)
+    }
 }

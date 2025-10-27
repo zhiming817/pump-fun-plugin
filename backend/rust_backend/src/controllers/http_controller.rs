@@ -12,6 +12,7 @@ use tower_http::cors::{CorsLayer, Any};
 
 use crate::services::database_service::DatabaseService;
 use crate::models::create_event_entity::Model as CreateEventModel;
+use crate::models::oath_created_event_entity::Model as OathCreatedEventModel;
 
 /// HTTP 服务器状态
 #[derive(Clone)]
@@ -117,10 +118,14 @@ pub fn create_router(db_service: Arc<DatabaseService>) -> Router {
         .route("/", get(root_handler))
         .route("/health", get(health_handler))
         .route("/api/events", get(get_all_events_handler))
+        .route("/api/events/", get(get_all_events_handler))
         .route("/api/events/recent/{limit}", get(get_recent_events_handler))
         .route("/api/events/count", get(count_events_handler))
         .route("/api/events/mint/{mint}", get(get_event_by_mint_handler))
         .route("/api/events/creator/{creator}", get(get_events_by_creator_handler))
+        .route("/api/oath-events", get(get_all_oath_events_handler))
+        .route("/api/oath-events/", get(get_all_oath_events_handler))
+        .route("/api/oath-events/count", get(count_oath_events_handler))
         .layer(cors)
         .with_state(state)
 }
@@ -136,7 +141,9 @@ async fn root_handler() -> impl IntoResponse {
             "recent_events": "/api/events/recent/{limit}",
             "count": "/api/events/count",
             "by_mint": "/api/events/mint/{mint}",
-            "by_creator": "/api/events/creator/{creator}?page=1&page_size=10"
+            "by_creator": "/api/events/creator/{creator}?page=1&page_size=10",
+            "oath_events": "/api/oath-events?page=1&page_size=10",
+            "oath_events_count": "/api/oath-events/count"
         },
         "pagination": {
             "description": "Use query parameters: page (default: 1) and page_size (default: 10)",
@@ -276,6 +283,59 @@ async fn get_events_by_creator_handler(
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ApiResponse::error(format!("Failed to fetch events by creator: {}", e)))
+            ))
+        }
+    }
+}
+
+/// 获取所有 Oath 事件处理器（支持分页）
+async fn get_all_oath_events_handler(
+    State(state): State<AppState>,
+    Query(params): Query<PaginationParams>,
+) -> Result<Json<ApiResponse<Vec<OathCreatedEventModel>>>, (StatusCode, Json<ApiResponse<Vec<OathCreatedEventModel>>>)> {
+    // 获取总数
+    let total = match state.db_service.count_oath_events().await {
+        Ok(count) => count,
+        Err(e) => {
+            eprintln!("❌ 获取 Oath 事件总数失败: {}", e);
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiResponse::error(format!("Failed to count oath events: {}", e)))
+            ));
+        }
+    };
+
+    // 分页获取 Oath 事件
+    match state.db_service.get_oath_events_paginated(params.offset(), params.limit()).await {
+        Ok(events) => {
+            Ok(Json(ApiResponse::success_with_pagination(
+                events,
+                total,
+                params.page,
+                params.page_size
+            )))
+        }
+        Err(e) => {
+            eprintln!("❌ 获取 Oath 事件失败: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiResponse::error(format!("Failed to fetch oath events: {}", e)))
+            ))
+        }
+    }
+}
+
+/// 统计 Oath 事件总数处理器
+async fn count_oath_events_handler(
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<u64>>, (StatusCode, Json<ApiResponse<u64>>)> {
+    match state.db_service.count_oath_events().await {
+        Ok(count) => Ok(Json(ApiResponse::success(count))),
+        Err(e) => {
+            eprintln!("❌ 统计 Oath 事件失败: {}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiResponse::error(format!("Failed to count oath events: {}", e)))
             ))
         }
     }

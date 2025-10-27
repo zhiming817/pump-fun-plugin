@@ -1,6 +1,7 @@
 use sea_orm::entity::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "oath_created_events")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = true)]
@@ -37,6 +38,7 @@ pub struct Model {
     pub signature: Option<String>,
     
     /// 创建时间
+    // #[sea_orm(column_type = "datetime")]
     pub created_at: DateTime,
 }
 
