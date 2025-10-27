@@ -110,8 +110,11 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({ onConn
 
     const message = `🛡️ Antidump Plugin Wallet Connection\n\nI authorize this antidump plugin to connect to my wallet.\n\nWallet: ${walletAddress}\nTimestamp: ${new Date().toISOString()}\n\nThis request will not trigger any blockchain transaction or cost any gas fees.`;
     
-    // 调用页面注入的签名函数
-    (window as any).signPhantomMessage?.(message);
+    // 通过 postMessage 发送签名请求
+    window.postMessage({
+      type: 'SIGN_PHANTOM_MESSAGE',
+      data: { message }
+    }, '*');
   }, []);
 
   // 连接 Phantom 钱包
@@ -125,16 +128,20 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({ onConn
     setConnecting(true);
     console.log('[Wallet] Requesting connection...');
     
-    // 调用页面注入的连接函数
-    (window as any).connectPhantom?.();
+    // 通过 postMessage 发送连接请求
+    window.postMessage({
+      type: 'CONNECT_PHANTOM'
+    }, '*');
   }, [phantomDetected]);
 
   // 断开连接
   const handleDisconnect = useCallback(() => {
     console.log('[Wallet] Requesting disconnect...');
     
-    // 调用页面注入的断开连接函数
-    (window as any).disconnectPhantom?.();
+    // 通过 postMessage 发送断开连接请求
+    window.postMessage({
+      type: 'DISCONNECT_PHANTOM'
+    }, '*');
   }, []);
 
   // 未连接状态 - 显示 Phantom 按钮

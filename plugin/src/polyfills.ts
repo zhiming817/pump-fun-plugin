@@ -3,12 +3,8 @@
  * This file should be imported at the very beginning of the application
  */
 
-import { Buffer } from 'buffer';
-
-// Make Buffer globally available
+// Make global variables available
 if (typeof window !== 'undefined') {
-  // @ts-ignore
-  window.Buffer = Buffer;
   // @ts-ignore
   window.global = window;
   // @ts-ignore
@@ -19,6 +15,6 @@ if (typeof window !== 'undefined') {
   };
 }
 
-export { Buffer };
+// Note: Buffer polyfill will be handled by Vite's configuration
 
 

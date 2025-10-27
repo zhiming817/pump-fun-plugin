@@ -6,153 +6,161 @@
  */
 
 export function injectPhantomBridge(): void {
-  // 创建一个 script 标签，注入到页面中
-  const script = document.createElement('script');
-  script.textContent = `
-    (function() {
-      console.log('[Phantom Bridge] Script injected into page context');
-      
-      // 检测 Phantom
-      function detectPhantom() {
-        const phantom = window.solana;
-        
-        if (phantom?.isPhantom) {
-          console.log('[Phantom Bridge] Phantom detected!');
-          window.postMessage({
-            type: 'PHANTOM_DETECTED',
-            data: {
-              isPhantom: true,
-              publicKey: phantom.publicKey?.toBase58() || null,
-              connected: !!phantom.publicKey
-            }
-          }, '*');
-          return true;
-        }
-        
-        console.log('[Phantom Bridge] Phantom not detected yet');
-        return false;
-      }
-      
-      // 立即检测
-      if (!detectPhantom()) {
-        // 如果没检测到，监听 Phantom 加载
-        let attempts = 0;
-        const maxAttempts = 50;
-        
-        const checkInterval = setInterval(() => {
-          attempts++;
-          
-          if (detectPhantom()) {
-            clearInterval(checkInterval);
-          } else if (attempts >= maxAttempts) {
-            console.log('[Phantom Bridge] Phantom not found after', maxAttempts, 'attempts');
-            clearInterval(checkInterval);
-            
-            window.postMessage({
-              type: 'PHANTOM_NOT_FOUND'
-            }, '*');
-          }
-        }, 100);
-      }
-      
-      // 暴露连接函数
-      window.connectPhantom = async function() {
-        const phantom = window.solana;
-        
-        if (!phantom?.isPhantom) {
-          window.postMessage({
-            type: 'PHANTOM_CONNECT_ERROR',
-            error: 'Phantom not found'
-          }, '*');
-          return;
-        }
-        
-        try {
-          const response = await phantom.connect();
-          const publicKey = response.publicKey.toBase58();
-          
-          window.postMessage({
-            type: 'PHANTOM_CONNECTED',
-            data: { publicKey }
-          }, '*');
-        } catch (error) {
-          window.postMessage({
-            type: 'PHANTOM_CONNECT_ERROR',
-            error: error.message
-          }, '*');
-        }
-      };
-      
-      // 暴露签名函数
-      window.signPhantomMessage = async function(message) {
-        const phantom = window.solana;
-        
-        if (!phantom?.isPhantom) {
-          window.postMessage({
-            type: 'PHANTOM_SIGN_ERROR',
-            error: 'Phantom not found'
-          }, '*');
-          return;
-        }
-        
-        try {
-          const encodedMessage = new TextEncoder().encode(message);
-          const { signature } = await phantom.signMessage(encodedMessage, 'utf8');
-          
-          window.postMessage({
-            type: 'PHANTOM_SIGNED',
-            data: { signature: Array.from(signature) }
-          }, '*');
-        } catch (error) {
-          window.postMessage({
-            type: 'PHANTOM_SIGN_ERROR',
-            error: error.message
-          }, '*');
-        }
-      };
-      
-      // 暴露断开连接函数
-      window.disconnectPhantom = async function() {
-        const phantom = window.solana;
-        
-        if (!phantom?.isPhantom) {
-          return;
-        }
-        
-        try {
-          await phantom.disconnect();
-          window.postMessage({
-            type: 'PHANTOM_DISCONNECTED'
-          }, '*');
-        } catch (error) {
-          console.error('[Phantom Bridge] Disconnect error:', error);
-        }
-      };
-      
-      // 监听账户变化
-      if (window.solana?.isPhantom) {
-        window.solana.on('accountChanged', (publicKey) => {
-          if (publicKey) {
-            window.postMessage({
-              type: 'PHANTOM_ACCOUNT_CHANGED',
-              data: { publicKey: publicKey.toBase58() }
-            }, '*');
-          } else {
-            window.postMessage({
-              type: 'PHANTOM_DISCONNECTED'
-            }, '*');
-          }
-        });
-      }
-    })();
-  `;
+  // 使用 postMessage 方式与页面通信，避免注入内联脚本
+  console.log('[Phantom Bridge] Initializing bridge communication');
   
-  // 注入到页面中（必须在 head 或 body 存在后）
-  (document.head || document.documentElement).appendChild(script);
+  // 检测 Phantom
+  function detectPhantom() {
+    const phantom = window.solana;
+    
+    if (phantom?.isPhantom) {
+      console.log('[Phantom Bridge] Phantom detected!');
+      window.postMessage({
+        type: 'PHANTOM_DETECTED',
+        data: {
+          isPhantom: true,
+          publicKey: phantom.publicKey?.toBase58() || null,
+          connected: !!phantom.publicKey
+        }
+      }, '*');
+      return true;
+    }
+    
+    console.log('[Phantom Bridge] Phantom not detected yet');
+    return false;
+  }
   
-  // 注入后立即移除 script 标签（代码已经执行了）
-  script.remove();
+  // 立即检测
+  if (!detectPhantom()) {
+    // 如果没检测到，监听 Phantom 加载
+    let attempts = 0;
+    const maxAttempts = 50;
+    
+    const checkInterval = setInterval(() => {
+      attempts++;
+      
+      if (detectPhantom()) {
+        clearInterval(checkInterval);
+      } else if (attempts >= maxAttempts) {
+        console.log('[Phantom Bridge] Phantom not found after', maxAttempts, 'attempts');
+        clearInterval(checkInterval);
+        
+        window.postMessage({
+          type: 'PHANTOM_NOT_FOUND'
+        }, '*');
+      }
+    }, 100);
+  }
   
-  console.log('[Phantom Injector] Bridge script injected into page');
+  // 监听来自页面的消息
+  window.addEventListener('message', async (event) => {
+    if (event.source !== window) return;
+    
+    const { type, data } = event.data;
+    
+    switch (type) {
+      case 'CONNECT_PHANTOM':
+        await connectPhantom();
+        break;
+      case 'SIGN_PHANTOM_MESSAGE':
+        await signPhantomMessage(data.message);
+        break;
+      case 'DISCONNECT_PHANTOM':
+        await disconnectPhantom();
+        break;
+    }
+  });
+  
+  // 连接函数
+  async function connectPhantom() {
+    const phantom = window.solana;
+    
+    if (!phantom?.isPhantom || !phantom.connect) {
+      window.postMessage({
+        type: 'PHANTOM_CONNECT_ERROR',
+        error: 'Phantom not found'
+      }, '*');
+      return;
+    }
+    
+    try {
+      const response = await phantom.connect();
+      const publicKey = response.publicKey.toBase58();
+      
+      window.postMessage({
+        type: 'PHANTOM_CONNECTED',
+        data: { publicKey }
+      }, '*');
+    } catch (error: any) {
+      window.postMessage({
+        type: 'PHANTOM_CONNECT_ERROR',
+        error: error?.message || 'Unknown error'
+      }, '*');
+    }
+  }
+  
+  // 签名函数
+  async function signPhantomMessage(message: string) {
+    const phantom = window.solana;
+    
+    if (!phantom?.isPhantom || !phantom.signMessage) {
+      window.postMessage({
+        type: 'PHANTOM_SIGN_ERROR',
+        error: 'Phantom not found'
+      }, '*');
+      return;
+    }
+    
+    try {
+      const encodedMessage = new TextEncoder().encode(message);
+      const { signature } = await phantom.signMessage(encodedMessage, 'utf8');
+      
+      window.postMessage({
+        type: 'PHANTOM_SIGNED',
+        data: { signature: Array.from(signature) }
+      }, '*');
+    } catch (error: any) {
+      window.postMessage({
+        type: 'PHANTOM_SIGN_ERROR',
+        error: error?.message || 'Unknown error'
+      }, '*');
+    }
+  }
+  
+  // 断开连接函数
+  async function disconnectPhantom() {
+    const phantom = window.solana;
+    
+    if (!phantom?.isPhantom || !phantom.disconnect) {
+      return;
+    }
+    
+    try {
+      await phantom.disconnect();
+      window.postMessage({
+        type: 'PHANTOM_DISCONNECTED'
+      }, '*');
+    } catch (error: any) {
+      console.error('[Phantom Bridge] Disconnect error:', error);
+    }
+  }
+  
+  // 监听账户变化
+  if (window.solana?.isPhantom && typeof (window.solana as any).on === 'function') {
+    (window.solana as any).on('accountChanged', (publicKey: any) => {
+      if (publicKey) {
+        window.postMessage({
+          type: 'PHANTOM_ACCOUNT_CHANGED',
+          data: { publicKey: publicKey.toBase58() }
+        }, '*');
+      } else {
+        window.postMessage({
+          type: 'PHANTOM_DISCONNECTED'
+        }, '*');
+      }
+    });
+  }
+  
+  console.log('[Phantom Injector] Bridge communication initialized');
 }
 
