@@ -71,7 +71,7 @@ frontend/web/src/utils/oath/
   content: string,           // Oath 内容
   category: string,          // 分类名称
   categoryId: string,        // 分类 ID
-  startTime: number,         // 开始时间戳
+  startTime: number,         // 开始时间戳  
   endTime: number,           // 结束时间戳
   stableCollateral: number,  // 稳定币抵押额
   collateralTokens: [],      // 代币抵押列表
