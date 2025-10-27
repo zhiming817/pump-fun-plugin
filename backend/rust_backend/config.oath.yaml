@@ -9,7 +9,7 @@ solana:
   networks:
     # 开发网配置
     devnet:
-      rpc_url: "https://solana-devnet.nodit.io/g_geDW2RLecIkMAlMGV6TL6veVho5cNS"
+      rpc_url: "https://api.zan.top/node/v1/solana/devnet/55c625d41c924f97971cdd05bb533048"
       # WebSocket URL 将从 rpc_url 自动转换
       # wss_url: "wss://solana-devnet.nodit.io/g_geDW2RLecIkMAlMGV6TL6veVho5cNS"
 
