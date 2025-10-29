@@ -13,6 +13,7 @@ import VaultDetail from './components/VaultDetail.jsx';
 import OathList from './oath/OathList.jsx';
 import CreateOathFlow from './oath/CreateOathFlow.jsx';
 import OathDetail from './oath/OathDetail.jsx';
+import ProtocolStats from './oath/ProtocolStats.jsx';
 import { NETWORK_CONFIG } from './config.js';
 
 // Import wallet adapter CSS
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/oaths" element={<OathList />} />
                 <Route path="/oaths/create" element={<CreateOathFlow />} />
                 <Route path="/oaths/:oathId" element={<OathDetail />} />
+                <Route path="/stats" element={<ProtocolStats />} />
               </Routes>
             </HashRouter>
           </WalletModalProvider>
