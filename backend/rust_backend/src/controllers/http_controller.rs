@@ -108,11 +108,13 @@ impl PaginationParams {
 pub fn create_router(db_service: Arc<DatabaseService>) -> Router {
     let state = AppState { db_service };
 
-    // 配置 CORS
+    // 配置 CORS - 允许所有来源的跨域请求
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)
-        .allow_headers(Any);
+        .allow_headers(Any)
+        .allow_credentials(true)
+        .expose_headers(Any);
 
     Router::new()
         .route("/", get(root_handler))
