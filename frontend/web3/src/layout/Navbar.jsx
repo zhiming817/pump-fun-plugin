@@ -41,14 +41,14 @@ const Navbar = () => {
           {/* Logo */}
           <button
             onClick={() => handleNavigation('/')}
-            className="flex items-center space-x-2 cursor-pointer"
+            className="flex items-center space-x-2 cursor-pointer group"
           >
-            <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-2 rounded-lg">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-            <span className="text-xl font-bold text-white">AntiDump</span>
+            <img 
+              src="/logo.png" 
+              alt="AntiDump Logo" 
+              className="w-10 h-10 transform group-hover:scale-110 transition-transform"
+            />
+            <span className="text-xl font-black bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">AntiDump</span>
           </button>
 
           {/* Desktop Navigation */}
@@ -59,7 +59,7 @@ const Navbar = () => {
                   onClick={() => handleNavigation(item.href)}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive(item.href)
-                      ? 'text-white bg-emerald-500'
+                      ? 'text-white bg-gradient-to-r from-orange-500 to-red-600'
                       : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }`}
                 >
@@ -84,10 +84,10 @@ const Navbar = () => {
                     Connected
                   </div>
                 </div>
-                <WalletMultiButton className="!bg-emerald-500 hover:!bg-emerald-600" />
+                <WalletMultiButton className="!bg-gradient-to-r !from-orange-500 !to-red-600 hover:!from-orange-600 hover:!to-red-700" />
               </div>
             ) : (
-              <WalletMultiButton className="!bg-emerald-500 hover:!bg-emerald-600" />
+              <WalletMultiButton className="!bg-gradient-to-r !from-orange-500 !to-red-600 hover:!from-orange-600 hover:!to-red-700" />
             )}
 
             {/* Mobile menu button */}
@@ -118,7 +118,7 @@ const Navbar = () => {
                     onClick={() => handleNavigation(item.href)}
                     className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
                       isActive(item.href)
-                        ? 'text-emerald-400 bg-emerald-500/10'
+                        ? 'text-orange-400 bg-orange-500/10'
                         : 'text-gray-300 hover:text-white hover:bg-gray-800'
                     }`}
                   >
@@ -129,7 +129,7 @@ const Navbar = () => {
                   {item.name === 'Home' && (
                     <button
                       onClick={() => handleNavigation('/oaths/create')}
-                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-colors mt-2"
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transition-colors mt-2"
                     >
                       Launch Oath
                     </button>

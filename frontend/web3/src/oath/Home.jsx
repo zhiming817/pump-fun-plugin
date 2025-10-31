@@ -1,343 +1,297 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../layout/Navbar.jsx';
 import Footer from '../layout/Footer.jsx';
 
 export default function Home() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const slides = [
-    {
-      id: 0,
-      component: <HeroSlide />
-    },
-    {
-      id: 1,
-      component: <MarketGapSlide />
-    },
-    {
-      id: 2,
-      component: <HowItWorksSlide />
-    }
-  ];
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   return (
-    <div className="h-screen bg-[#0a0a0a] flex flex-col overflow-hidden">
-      <Navbar />
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Animated Background */}
+      <div 
+        className="fixed inset-0 z-0 animate-[pan_60s_linear_infinite]"
+        style={{
+          backgroundImage: 'url(/backgroundHome.png)',
+          backgroundSize: '120%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'repeat',
+        }}
+      />
+      
+      {/* Overlay for better text readability */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
 
-      {/* Carousel Container */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Slides */}
-        <div
-          className="h-full flex transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-        >
-          {slides.map((slide) => (
-            <div key={slide.id} className="min-w-full h-full">
-              {slide.component}
-            </div>
-          ))}
-        </div>
+      {/* Content */}
+      <div className="relative z-10">
+        <Navbar />
 
-        {/* Navigation Controls */}
-        <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center gap-4 z-10">
-          {/* Previous Button */}
-          <button
-            onClick={prevSlide}
-            className="w-10 h-10 rounded-full bg-gray-800/50 hover:bg-gray-700/50 flex items-center justify-center transition-colors"
-            aria-label="Previous slide"
-          >
-            <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          {/* Dots */}
-          <div className="flex gap-2">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`h-2 rounded-full transition-all ${index === currentSlide
-                  ? 'w-8 bg-emerald-500'
-                  : 'w-2 bg-gray-600 hover:bg-gray-500'
-                  }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Next Button */}
-          <button
-            onClick={nextSlide}
-            className="w-10 h-10 rounded-full bg-gray-800/50 hover:bg-gray-700/50 flex items-center justify-center transition-colors"
-            aria-label="Next slide"
-          >
-            <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Slide 1: Hero
-function HeroSlide() {
-  return (
-    <div className="h-full flex items-center justify-center px-4">
-      <div className="text-center max-w-4xl">
-        {/* Logo Icon */}
-        <div className="mb-8 flex justify-center">
-          <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-8 rounded-3xl shadow-2xl">
-            <svg className="w-24 h-24 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Title */}
-        <h1 className="text-7xl font-bold text-white mb-6">
-          AntiDump
-        </h1>
-
-        {/* Subtitle */}
-        <h2 className="text-3xl text-gray-300 mb-8">
-          From Information to Protection
-        </h2>
-
-        {/* Description */}
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-          The first protocol that structurally prevents rug pulls through creator commitment mechanisms
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// Slide 2: Market Gap
-function MarketGapSlide() {
-  return (
-    <div className="h-full flex items-center justify-center px-4 py-4">
-      <div className="max-w-5xl w-full">
-        <div className="mb-6 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">The Market Gap</h2>
-          <p className="text-base text-gray-400">
-            Existing solutions tell you about risk. We eliminate it.
-          </p>
-        </div>
-
-        {/* Comparison Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          {/* GMGN.ai Card */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-white mb-1">GMGN.ai</h3>
-                <p className="text-sm text-gray-400">On-chain Intelligence Platform</p>
+        {/* Hero Section */}
+        <section className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-20">
+          <div className={`text-center max-w-5xl mx-auto transition-all duration-1000 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <div className="mb-8 flex justify-center">
+              <div className="relative">
+                <img 
+                  src="/logo.png" 
+                  alt="AntiDump Logo" 
+                  className="w-48 h-48 md:w-64 md:h-64 animate-bounce drop-shadow-2xl"
+                />
               </div>
             </div>
-            <p className="text-gray-300 mb-3 text-sm">
-              Tracks smart money wallets and provides alpha signals. Shows you what to hunt.
+            
+            <h1 className="text-6xl md:text-8xl font-black mb-6 bg-gradient-to-r from-orange-300 via-yellow-300 to-red-300 text-transparent bg-clip-text drop-shadow-[0_4px_20px_rgba(255,165,0,0.8)]">
+              ANTIDUMP
+            </h1>
+            
+            <p className="text-2xl md:text-4xl font-bold mb-8 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] [text-shadow:_2px_2px_4px_rgb(0_0_0_/_80%)]">
+              Welcome to the Main Event
             </p>
-            <div className="flex items-start gap-2 text-sm text-red-400">
-              <span>✗</span>
-              <span>Read-only information • Cannot prevent rug pulls</span>
+            
+            <p className="text-xl md:text-2xl mb-12 text-white max-w-3xl mx-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] [text-shadow:_1px_1px_3px_rgb(0_0_0_/_90%)] leading-relaxed">
+              The Formula 1 circuit for crypto tokens. Where the highest-stakes competition meets the most spectacular victories.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link to="/oaths/create">
+                <button className="px-8 py-4 text-lg font-bold bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg shadow-2xl transform hover:scale-105 transition-all flex items-center gap-2">
+                  Launch Your Token
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </button>
+              </Link>
+              <Link to="/projects">
+                <button className="px-8 py-4 text-lg font-bold bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-xl transform hover:scale-105 transition-all border-2 border-white">
+                  Browse Projects
+                </button>
+              </Link>
             </div>
           </div>
+        </section>
 
-          {/* Photon / BullX Card */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        {/* The Opportunity Section */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl border-4 border-yellow-400 p-8 md:p-12 transform hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <svg className="w-12 h-12 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
+                <h2 className="text-4xl md:text-5xl font-black text-gray-900">The Opportunity</h2>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-white mb-1">Photon / BullX</h3>
-                <p className="text-sm text-gray-400">High-Speed Trading Bots</p>
+              <p className="text-xl md:text-2xl text-gray-700 leading-relaxed">
+                Pump.fun created a beautiful, chaotic, free market. We love that freedom.
+              </p>
+              <p className="text-xl md:text-2xl text-gray-700 mt-4 leading-relaxed">
+                But with <span className="font-bold text-red-600">thousands of tokens daily</span>, good projects are lost in the noise. 
+                The opportunity is buried.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* The Solution Section */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl shadow-2xl border-4 border-orange-500 p-8 md:p-12 transform hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <svg className="w-12 h-12 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-orange-600 to-red-600 text-transparent bg-clip-text">
+                  The Premium Arena
+                </h2>
+              </div>
+              <p className="text-xl md:text-2xl text-gray-800 leading-relaxed mb-6">
+                We don't restrict the chaos, we build a <span className="font-bold text-orange-600">premium arena</span> on top of it.
+              </p>
+              <div className="bg-white/80 rounded-lg p-6 mb-6 border-2 border-orange-300">
+                <p className="text-2xl font-bold text-orange-700 mb-2">
+                  30 SOL Credibility Bond
+                </p>
+                <p className="text-lg text-gray-700">
+                  Developers voluntarily post a bond to enter, signaling skin-in-the-game.
+                </p>
+              </div>
+              <p className="text-xl md:text-2xl text-gray-800 leading-relaxed">
+                For users, this creates a <span className="font-bold text-red-600">curated, high-stakes game</span>. 
+                The same free market, just filtered for conviction.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* The Engine Section */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-2xl border-4 border-yellow-500 p-8 md:p-12 transform hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <svg className="w-12 h-12 text-yellow-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-yellow-600 to-orange-600 text-transparent bg-clip-text">
+                  The Matthew Effect
+                </h2>
+              </div>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 italic">
+                "To those who have, more will be given."
+              </p>
+              <div className="space-y-6">
+                <div className="bg-white/80 rounded-lg p-6 border-l-4 border-yellow-500">
+                  <p className="text-xl text-gray-800">
+                    <span className="font-bold text-yellow-700">First:</span> The losers' bonds are used to market-buy the winner.
+                  </p>
+                </div>
+                <div className="bg-white/80 rounded-lg p-6 border-l-4 border-orange-500">
+                  <p className="text-xl text-gray-800">
+                    <span className="font-bold text-orange-700">Second:</span> Our Betting Layer unleashes a massive <span className="font-bold">"Victory Pump"</span> from the betting pool onto that same winner.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-8 text-center">
+                <p className="text-2xl font-black text-red-600">
+                  This is a guaranteed, on-chain spectacle of success.
+                </p>
               </div>
             </div>
-            <p className="text-gray-300 mb-3 text-sm">
-              Snipe tokens at launch with maximum speed. Helps you react faster.
+          </div>
+        </section>
+
+        {/* Game Theory Section */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl shadow-2xl border-4 border-red-500 p-8 md:p-12 transform hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <svg className="w-12 h-12 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-red-600 to-orange-600 text-transparent bg-clip-text">
+                  Interlocking Game Theory
+                </h2>
+              </div>
+              <p className="text-xl md:text-2xl text-gray-800 leading-relaxed mb-8">
+                Our true moat is <span className="font-bold text-red-600">interlocking game theory</span>. 
+                We've engineered an ecosystem where self-interest creates unstoppable upward pressure.
+              </p>
+              
+              <div className="space-y-6">
+                <div className="bg-white/90 rounded-lg p-6 border-2 border-red-300">
+                  <h3 className="text-2xl font-bold text-red-700 mb-3">The Bettor's Dilemma</h3>
+                  <p className="text-lg text-gray-700">
+                    A bettor's capital is locked. If their chosen project dips, their only rational move is to become its champion—buying the dip and rallying the community to protect their bet.
+                  </p>
+                </div>
+
+                <div className="bg-white/90 rounded-lg p-6 border-2 border-orange-300">
+                  <h3 className="text-2xl font-bold text-orange-700 mb-3">The Automatic Counter-Force</h3>
+                  <p className="text-lg text-gray-700 mb-4">
+                    As a token nears graduation, fearful holders might panic-sell. But our system creates automatic defense:
+                  </p>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start gap-3">
+                      <span className="text-2xl">🎯</span>
+                      <span>The locked-in bettors buy to defend their position</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-2xl">🤖</span>
+                      <span>New arbitrage bots see a discounted token about to win, so they buy</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-2xl">💪</span>
+                      <span>A strong developer, seeing this coordinated support, is incentivized to make the final push</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-r from-red-600 to-orange-600 rounded-lg p-6 text-center">
+                  <p className="text-2xl md:text-3xl font-black text-white">
+                    Panic-selling is met with coordinated buying.
+                    <br />
+                    This is why our projects pump. 🚀
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* The Vision Section */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-gradient-to-br from-purple-900 to-red-900 rounded-2xl shadow-2xl border-4 border-yellow-400 p-8 md:p-12 transform hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6 justify-center">
+                <svg className="w-16 h-16 text-yellow-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+                <h2 className="text-4xl md:text-5xl font-black text-yellow-400">
+                  The F1 Circuit
+                </h2>
+              </div>
+              <div className="text-center space-y-6">
+                <p className="text-2xl md:text-3xl text-white leading-relaxed">
+                  Pump.fun is the chaotic open road.
+                </p>
+                <p className="text-2xl md:text-3xl text-white leading-relaxed font-bold">
+                  We built the Formula 1 circuit on top of it.
+                </p>
+                <p className="text-xl md:text-2xl text-yellow-200 leading-relaxed">
+                  An arena for the highest-stakes competition and the most spectacular victories.
+                </p>
+                <div className="py-8">
+                  <p className="text-3xl md:text-4xl font-black text-white mb-2">
+                    We didn't replace the casino.
+                  </p>
+                  <p className="text-4xl md:text-5xl font-black bg-gradient-to-r from-yellow-400 to-orange-400 text-transparent bg-clip-text">
+                    We built the VIP room.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="py-32 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="mb-8 flex justify-center">
+              <img 
+                src="/logo.png" 
+                alt="AntiDump Logo" 
+                className="w-32 h-32 md:w-40 md:h-40 animate-bounce drop-shadow-2xl"
+              />
+            </div>
+            <h2 className="text-5xl md:text-7xl font-black mb-8 text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] [text-shadow:_3px_3px_6px_rgb(0_0_0_/_90%)]">
+              Ready to Enter the Arena?
+            </h2>
+            <p className="text-2xl md:text-3xl mb-12 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] [text-shadow:_2px_2px_4px_rgb(0_0_0_/_90%)]">
+              Join the most exclusive token launch platform on Solana
             </p>
-            <div className="flex items-start gap-2 text-sm text-red-400">
-              <span>✗</span>
-              <span>Speed-focused • Reactive, not preventive</span>
-            </div>
-          </div>
-        </div>
-
-        {/* AntiDump Advantage */}
-        <div className="bg-gradient-to-br from-emerald-900/30 to-green-900/30 border border-emerald-500/30 rounded-xl p-4">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-xl font-bold text-white">Ø</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-white mb-1">AntiDump Advantage</h3>
-              <p className="text-gray-300 text-xs">
-                We don't just identify risk—we architect safety into the protocol itself
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div>
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
-                <span>✓</span>
-                <span class="text-sm">Structural Safety</span>
-              </div>
-              <p className="text-xs text-gray-400">
-                Built-in creator commitment mechanisms
-              </p>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
-                <span>✓</span>
-                <span class="text-sm">Capital Protection</span>
-              </div>
-              <p className="text-xs text-gray-400">
-                Failed stakes redirect to graduated tokens
-              </p>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
-                <span>✓</span>
-                <span class="text-sm">Trust by Design</span>
-              </div>
-              <p className="text-xs text-gray-400">
-                Creators prove commitment before launch
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Slide 3: How It Works
-function HowItWorksSlide() {
-  return (
-    <div className="h-full flex items-center justify-center px-4 py-4">
-      <div className="max-w-5xl w-full">
-        <div className="mb-6 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">How It Works</h2>
-          <p className="text-base text-gray-400">
-            A simple, enforceable commitment protocol
-          </p>
-        </div>
-
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          {/* Step 1 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl font-bold text-white">1</span>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Link to="/oaths/create">
+                <button className="px-12 py-6 text-xl font-bold bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg shadow-2xl transform hover:scale-110 transition-all flex items-center gap-3">
+                  Launch Now
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C10.5 2 9.5 3.5 9.5 5C9.5 6.5 10.5 8 12 8C13.5 8 14.5 6.5 14.5 5C14.5 3.5 13.5 2 12 2Z" />
                   </svg>
-                  <h3 className="text-xl font-bold text-white">Creator Oath</h3>
-                </div>
-                <p className="text-gray-300 text-sm">
-                  Token creators stake SOL and commit to a graduation timeline (e.g., 3 hours to reach $80K market cap on pump.fun bonding curve)
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl font-bold text-white">2</span>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </button>
+              </Link>
+              <Link to="/projects">
+                <button className="px-12 py-6 text-xl font-bold bg-white/95 hover:bg-white text-gray-900 rounded-lg shadow-2xl transform hover:scale-110 transition-all border-2 border-white flex items-center gap-3">
+                  Explore Projects
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
-                  <h3 className="text-xl font-bold text-white">Success Path</h3>
-                </div>
-                <p className="text-gray-300 text-sm">
-                  If the token graduates within the timeframe, the creator's stake is returned. Trust is established through demonstrated commitment.
-                </p>
-              </div>
+                </button>
+              </Link>
             </div>
           </div>
+        </section>
 
-          {/* Step 3 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl font-bold text-white">3</span>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  <h3 className="text-xl font-bold text-white">Failure Protection</h3>
-                </div>
-                <p className="text-gray-300 text-sm">
-                  If graduation fails, staked SOL is forfeited and used to purchase already-graduated tokens, protecting community capital.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Step 4 */}
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-3">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl font-bold text-white">4</span>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <h3 className="text-xl font-bold text-white">Revenue Model</h3>
-                </div>
-                <p className="text-gray-300 text-sm">
-                  Protocol captures a portion of forfeited stakes as fees. Remaining funds reward top holders of graduated tokens, creating aligned incentives.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Economic Flywheel */}
-        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border border-gray-700 rounded-xl p-4">
-          <h3 className="text-lg font-bold text-white mb-2">The Economic Flywheel</h3>
-          <p className="text-gray-300 text-sm">
-            Serious creators prove commitment through stakes. Failed projects fund successful ones. Top holders are rewarded.
-            The protocol captures sustainable revenue. Everyone wins except rug pullers.
-          </p>
-        </div>
+        <Footer />
       </div>
     </div>
   );

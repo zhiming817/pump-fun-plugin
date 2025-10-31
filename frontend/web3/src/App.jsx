@@ -15,6 +15,7 @@ import CreateOathFlow from './oath/CreateOathFlow.jsx';
 import OathDetail from './oath/OathDetail.jsx';
 import ProtocolStats from './oath/ProtocolStats.jsx';
 import BrowseProjects from './oath/BrowseProjects.jsx';
+import PageLayout from './layout/PageLayout.jsx';
 import { NETWORK_CONFIG } from './config.js';
 
 // Import wallet adapter CSS
@@ -42,19 +43,21 @@ function App() {
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
             <HashRouter>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/vaults" element={<VaultList />} />
-                <Route path="/vaults/create" element={<CreateVaultFlow />} />
-                <Route path="/vaults/:vaultId" element={<VaultDetail />} />
-                
-                {/* Oath Routes */}
-                <Route path="/oaths" element={<OathList />} />
-                <Route path="/oaths/create" element={<CreateOathFlow />} />
-                <Route path="/oaths/:oathId" element={<OathDetail />} />
-                <Route path="/stats" element={<ProtocolStats />} />
-                <Route path="/projects" element={<BrowseProjects />} />
-              </Routes>
+              <PageLayout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/vaults" element={<VaultList />} />
+                  <Route path="/vaults/create" element={<CreateVaultFlow />} />
+                  <Route path="/vaults/:vaultId" element={<VaultDetail />} />
+                  
+                  {/* Oath Routes */}
+                  <Route path="/oaths" element={<OathList />} />
+                  <Route path="/oaths/create" element={<CreateOathFlow />} />
+                  <Route path="/oaths/:oathId" element={<OathDetail />} />
+                  <Route path="/stats" element={<ProtocolStats />} />
+                  <Route path="/projects" element={<BrowseProjects />} />
+                </Routes>
+              </PageLayout>
             </HashRouter>
           </WalletModalProvider>
         </WalletProvider>

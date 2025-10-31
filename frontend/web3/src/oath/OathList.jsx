@@ -80,12 +80,12 @@ export default function OathList() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen">
         <Navbar />
         <div className="flex items-center justify-center" style={{minHeight: 'calc(100vh - 64px)'}}>
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"></div>
-            <p className="text-gray-400">Loading oaths...</p>
+          <div className="text-center bg-white/95 backdrop-blur rounded-2xl p-8 shadow-2xl">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
+            <p className="text-gray-700 font-semibold">Loading oaths...</p>
           </div>
         </div>
       </div>
@@ -93,57 +93,59 @@ export default function OathList() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-4xl font-bold text-white">
-                  Active Oaths
-                </h1>
+          <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl p-6 border-4 border-orange-400 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-4xl font-black bg-gradient-to-r from-orange-600 to-red-600 text-transparent bg-clip-text">
+                    Active Oaths
+                  </h1>
+                </div>
+                <p className="text-gray-700 font-medium">
+                 Track all oaths grouped by deadline. Successful projects share rewards from failed oaths in their group.
+                </p>
               </div>
-              <p className="text-gray-400">
-               Track all oaths grouped by deadline. Successful projects share rewards from failed oaths in their group.
-              </p>
+              <button
+                onClick={handleCreateOath}
+                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl font-bold hover:from-orange-600 hover:to-red-700 transition-all shadow-lg hover:shadow-2xl transform hover:scale-105"
+              >
+                + Create New Oath
+              </button>
             </div>
-            <button
-              onClick={handleCreateOath}
-              className="px-6 py-3 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors shadow-lg hover:shadow-xl"
-            >
-              + Create New Oath
-            </button>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg shadow-md p-6">
+            <div className="bg-white/95 backdrop-blur border-2 border-orange-300 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Total Oaths</p>
-                  <p className="text-3xl font-bold text-emerald-400">{oathCount}</p>
+                  <p className="text-gray-600 text-sm font-semibold">Total Oaths</p>
+                  <p className="text-3xl font-black text-orange-600">{oathCount}</p>
                 </div>
                 <div className="text-4xl">📜</div>
               </div>
             </div>
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg shadow-md p-6">
+            <div className="bg-white/95 backdrop-blur border-2 border-yellow-300 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">My Oaths</p>
-                  <p className="text-3xl font-bold text-emerald-400">
+                  <p className="text-gray-600 text-sm font-semibold">My Oaths</p>
+                  <p className="text-3xl font-black text-yellow-600">
                     {publicKey ? oaths.filter(o => o.creator === publicKey.toString()).length : 0}
                   </p>
                 </div>
                 <div className="text-4xl">👤</div>
               </div>
             </div>
-            <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg shadow-md p-6">
+            <div className="bg-white/95 backdrop-blur border-2 border-red-300 rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Active Oaths</p>
-                  <p className="text-3xl font-bold text-emerald-400">
+                  <p className="text-gray-600 text-sm font-semibold">Active Oaths</p>
+                  <p className="text-3xl font-black text-red-600">
                     {oaths.filter(o => Object.keys(o.status)[0] === 'active').length}
                   </p>
                 </div>
@@ -165,17 +167,17 @@ export default function OathList() {
 
         {/* Oaths List */}
         {oaths.length === 0 ? (
-          <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg shadow-lg p-12 text-center">
+          <div className="bg-white/95 backdrop-blur border-4 border-orange-400 rounded-2xl shadow-2xl p-12 text-center">
             <div className="text-6xl mb-4">🤝</div>
-            <h3 className="text-2xl font-semibold text-white mb-2">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-2">
               No Oaths Yet
             </h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-gray-600 mb-6">
               Be the first to create an oath and commit to your goals!
             </p>
             <button
               onClick={handleCreateOath}
-              className="px-6 py-3 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg font-bold hover:from-orange-600 hover:to-red-700 transition-all shadow-lg transform hover:scale-105"
             >
               Create Your First Oath
             </button>
@@ -186,10 +188,10 @@ export default function OathList() {
               <div
                 key={oath.id}
                 onClick={() => handleViewOath(oath.id)}
-                className="bg-[#1a1a1a] border border-gray-800 rounded-lg shadow-md hover:shadow-xl hover:border-emerald-500/50 transition-all duration-200 cursor-pointer overflow-hidden"
+                className="bg-white/95 backdrop-blur border-2 border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:border-orange-400 transition-all duration-200 cursor-pointer overflow-hidden transform hover:scale-105"
               >
                 {/* Card Header */}
-                <div className="bg-gradient-to-r from-emerald-600 to-green-600 p-4">
+                <div className="bg-gradient-to-r from-orange-500 to-red-600 p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-white text-sm font-medium">Oath #{oath.id}</span>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(oath.status)}`}>
@@ -203,22 +205,22 @@ export default function OathList() {
 
                 {/* Card Body */}
                 <div className="p-4 space-y-3">
-                  <div className="flex items-center text-sm text-gray-300">
+                  <div className="flex items-center text-sm text-gray-700 font-medium">
                     <span className="mr-2">🎯</span>
                     <span>Target: ${(oath.targetMarketCap / 1000).toFixed(1)}K</span>
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-300">
+                  <div className="flex items-center text-sm text-gray-700 font-medium">
                     <span className="mr-2">💰</span>
                     <span>{formatCollateral(oath.solCollateral)} SOL Staked</span>
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-300">
+                  <div className="flex items-center text-sm text-gray-700 font-medium">
                     <span className="mr-2">📅</span>
                     <span>{formatDate(oath.startTime)} - {formatDate(oath.endTime)}</span>
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-300">
+                  <div className="flex items-center text-sm text-gray-700 font-medium">
                     <span className="mr-2">👤</span>
                     <span className="truncate" title={oath.creator}>
                       {oath.creator.substring(0, 8)}...{oath.creator.substring(oath.creator.length - 6)}
@@ -227,10 +229,10 @@ export default function OathList() {
                 </div>
 
                 {/* Card Footer */}
-                <div className="px-4 py-3 bg-[#0a0a0a] border-t border-gray-800">
-                  <div className="flex items-center justify-between text-xs text-gray-400">
-                    <span>Created {formatDate(oath.createdAt)}</span>
-                    <span className="text-emerald-400 font-medium hover:text-emerald-300">
+                <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-red-50 border-t-2 border-orange-200">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">Created {formatDate(oath.createdAt)}</span>
+                    <span className="text-orange-600 font-bold hover:text-orange-700">
                       View Details →
                     </span>
                   </div>
